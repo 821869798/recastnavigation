@@ -276,3 +276,62 @@ project "Tests"
 		links {
 			"Cocoa.framework",
 		}
+
+
+project "RecastDll"
+	language "C++"
+	kind "SharedLib"
+	cppdialect "C++14" -- Catch requires newer C++ features
+	includedirs { 
+		"../RecastDll/Include",
+		"../DebugUtils/Include",
+		"../Detour/Include",
+		"../DetourCrowd/Include",
+		"../DetourTileCache/Include",
+		"../Recast/Include"
+	}
+	files {
+		"../RecastDll/Include/*.h",
+		"../RecastDll/Source/*.cpp",
+	}
+
+	-- project dependencies
+	links { 
+		"DebugUtils",
+		"Detour",
+		"DetourCrowd",
+		"DetourTileCache",
+		"Recast",
+	}
+	
+project "RecastDllTester"
+	language "C++"
+	kind "ConsoleApp"
+	cppdialect "C++14" -- Catch requires newer C++ features
+	-- distribute executable in RecastDemo/Bin directory
+	targetdir "Bin"
+	
+	includedirs { 
+		"../RecastDll/Tester/Include",
+		"../RecastDll/Include",
+		"../DebugUtils/Include",
+		"../Detour/Include",
+		"../DetourCrowd/Include",
+		"../DetourTileCache/Include",
+		"../Recast/Include"
+	}
+	files {
+		"../RecastDll/Include/*.h",
+		"../RecastDll/Source/*.cpp",
+		"../RecastDll/Tester/Include/*.h",
+		"../RecastDll/Tester/Source/*.cpp",
+	}
+
+	-- project dependencies
+	links { 
+		"DebugUtils",
+		"Detour",
+		"DetourCrowd",
+		"DetourTileCache",
+		"Recast",
+	}
