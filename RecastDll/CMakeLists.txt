@@ -74,6 +74,11 @@ else ( )
     add_library(RecastDll SHARED ${RECASTDLL_SOURCES})
 endif ( )
 
+if (ANDROID)
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os -Wall -s")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os -Wall -s")
+endif ( )
+
 if ( WIN32 AND NOT CYGWIN )
     target_compile_definitions (RecastDll PRIVATE DLL_EXPORTS)
 endif ( )
