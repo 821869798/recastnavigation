@@ -74,9 +74,11 @@ else ( )
     add_library(RecastDll SHARED ${RECASTDLL_SOURCES})
 endif ( )
 
+# 精简so文件大小
 if (ANDROID)
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os -Wall -s")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os -Wall -s")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -Os -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Os -Wall")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -s")
 endif ( )
 
 if ( WIN32 AND NOT CYGWIN )

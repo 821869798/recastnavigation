@@ -1,5 +1,6 @@
 #include <cstring>
 #include <unordered_map>
+#include <cstdlib>
 #include "InvokeHelper.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
