@@ -91,7 +91,6 @@ int32_t InitNav(const char* buffer, int32_t n, dtNavMesh*& navMesh)
 }
 
 static const int MAX_POLYS = 256;
-static const int MAX_SMOOTH = 2048;
 
 class NavMeshContex
 {

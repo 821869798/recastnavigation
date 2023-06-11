@@ -284,7 +284,6 @@ project "RecastDll"
 	cppdialect "C++14" -- Catch requires newer C++ features
 	includedirs { 
 		"../RecastDll/Include",
-		"../DebugUtils/Include",
 		"../Detour/Include",
 		"../DetourCrowd/Include",
 		"../DetourTileCache/Include",
@@ -293,16 +292,22 @@ project "RecastDll"
 	files {
 		"../RecastDll/Include/*.h",
 		"../RecastDll/Source/*.cpp",
+		"../Detour/Include/*.h", 
+		"../Detour/Source/*.cpp",
+		"../DetourCrowd/Include/*.h",
+		"../DetourCrowd/Source/*.cpp",
+		"../DetourTileCache/Include/*.h",
+		"../DetourTileCache/Source/*.cpp",
+		"../Recast/Include/*.h",
+		"../Recast/Source/*.cpp",
 	}
-
-	-- project dependencies
-	links { 
-		"DebugUtils",
-		"Detour",
-		"DetourCrowd",
-		"DetourTileCache",
-		"Recast",
-	}
+	
+	-- linux library cflags and libs
+	filter {"system:linux", "toolset:gcc"}
+		buildoptions {
+			"-Wno-error=class-memaccess",
+			"-Wno-error=maybe-uninitialized"
+		}
 	
 project "RecastDllTester"
 	language "C++"
@@ -321,10 +326,10 @@ project "RecastDllTester"
 		"../Recast/Include"
 	}
 	files {
-		"../RecastDll/Include/*.h",
-		"../RecastDll/Source/*.cpp",
 		"../RecastDll/Tester/Include/*.h",
 		"../RecastDll/Tester/Source/*.cpp",
+		"../RecastDll/Include/*.h",
+		"../RecastDll/Source/*.cpp",
 	}
 
 	-- project dependencies
