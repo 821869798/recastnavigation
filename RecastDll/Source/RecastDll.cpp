@@ -126,3 +126,29 @@ int32_t RecastFindFollow(NavMeshScene* navMeshScene, float* extents, float* star
 	return navMeshScene->pathfindFollow(extents, startPos, endPos, smoothPath);
 }
 
+int32_t RecastTryMove(NavMeshScene* navMeshScene, float* extents, float* startPos, float* endPos, float* realEndPos)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -1;
+	}
+	if (extents == nullptr)
+	{
+		return -2;
+	}
+	if (startPos == nullptr)
+	{
+		return -3;
+	}
+	if (endPos == nullptr)
+	{
+		return -4;
+	}
+	if (realEndPos == nullptr)
+	{
+		return -5;
+	}
+
+	return navMeshScene->tryMove(extents, startPos, endPos, realEndPos);
+}
+

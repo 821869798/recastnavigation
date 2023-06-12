@@ -37,4 +37,6 @@ public:
 	int32_t init(const char* buffer, int32_t n);
 
 	int32_t pathfindFollow(float* extents, float* m_spos, float* m_epos, float* m_smoothPath);
+
+	int32_t tryMove(float* extents, float* startPos, float* endPos, float* realEndPos);
 };

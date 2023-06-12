@@ -249,6 +249,45 @@ int32_t NavMeshScene::pathfindFollow(float* extents, float* m_spos, float* m_epo
 	return m_nsmoothPath;
 }
 
+int32_t NavMeshScene::tryMove(float* extents, float* startPos, float* endPos, float* realEndPos)
+{
+	// Find the start polygon
+	dtPolyRef startPolyRef;
+	navQuery->findNearestPoly(startPos, extents, &navFilter, &startPolyRef, 0);
+
+	// If we couldn't find a start polygon, return failure
+	if (!startPolyRef)
+	{
+		return -100;
+	}
+
+	// Try to move from the start to the end position
+	dtPolyRef visited[16];
+	int nvisited = 0;
+	dtStatus status = navQuery->moveAlongSurface(startPolyRef, startPos, endPos, &navFilter, realEndPos, visited, &nvisited, 16);
+
+	if (!dtStatusSucceed(status)) {
+		// Moving along the surface failed
+		return -101;
+	}
+
+	// If we couldn't find a path, return failure
+	if (nvisited == 0)
+	{
+		return -102;
+	}
+
+	// Find the poly height at the position
+	float h = 0;
+	status = navQuery->getPolyHeight(startPolyRef, realEndPos, &h);
+	if (dtStatusSucceed(status)) {
+		realEndPos[1] = h;
+	}
+
+	// Otherwise, return success
+	return 0;
+}
+
 
 NavMeshScene::NavMeshScene()
 {
