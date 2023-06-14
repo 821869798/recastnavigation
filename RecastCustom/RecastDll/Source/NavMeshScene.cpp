@@ -86,6 +86,11 @@ int32_t initNav(const char* buffer, int32_t n, dtNavMesh*& navMesh)
 	return 0;
 }
 
+int32_t NavMeshScene::getId()
+{
+	return this->id;
+}
+
 int32_t NavMeshScene::init(const char* buffer, int32_t n)
 {
 	int32_t ret = initNav(buffer, n, navMesh);
@@ -289,8 +294,9 @@ int32_t NavMeshScene::tryMove(float* extents, float* startPos, float* endPos, fl
 }
 
 
-NavMeshScene::NavMeshScene()
+NavMeshScene::NavMeshScene(int32_t id)
 {
+	this->id = id;
 	navFilter.setIncludeFlags(SAMPLE_POLYFLAGS_ALL ^ SAMPLE_POLYFLAGS_DISABLED);
 	navFilter.setExcludeFlags(0);
 	navMesh = nullptr;
@@ -310,4 +316,5 @@ NavMeshScene::~NavMeshScene()
 		navMesh = nullptr;
 	}
 }
+
 

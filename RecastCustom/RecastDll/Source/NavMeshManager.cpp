@@ -13,7 +13,13 @@ NavMeshManager* NavMeshManager::getInstance()
 
 NavMeshScene* NavMeshManager::newScene(int32_t id, const char* buffer, int32_t n)
 {
-	NavMeshScene* navMeshScene = new NavMeshScene();
+	const auto it = navMeshScenes.find(id);
+	if (it != navMeshScenes.end()) {
+		delete it->second;
+		navMeshScenes.erase(it);
+	}
+
+	NavMeshScene* navMeshScene = new NavMeshScene(id);
 	int32_t ret = navMeshScene->init(buffer, n);
 
 	if (ret != 0)
@@ -42,7 +48,7 @@ bool NavMeshManager::clearScene(int32_t id)
 	if (it != navMeshScenes.end())
 	{
 		delete it->second;
-		navMeshScenes.erase(id);
+		navMeshScenes.erase(it);
 		return true;
 	}
 

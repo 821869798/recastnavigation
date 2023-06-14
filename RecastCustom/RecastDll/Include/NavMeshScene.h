@@ -25,14 +25,17 @@ class NavMeshScene
 
 private:
 	dtPolyRef m_polys[MAX_POLYS];
+	int32_t id;
 
 public:
 	dtNavMesh* navMesh;
 	dtNavMeshQuery* navQuery;
 	dtQueryFilter navFilter;
 
-	NavMeshScene();
+	NavMeshScene(int32_t id);
 	~NavMeshScene();
+
+	int32_t getId();
 
 	int32_t init(const char* buffer, int32_t n);
 

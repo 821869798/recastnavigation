@@ -13,33 +13,33 @@ if ( IOS )
 endif ()
 
 
-project(RecastDll)
+project(NavMeshExport)
 
-find_path(RecastDll_PROJECT_DIR NAMES SConstruct
+find_path(NAVMESHEXPORT_PROJECT_DIR NAMES SConstruct
     PATHS
     ${CMAKE_SOURCE_DIR}
     NO_DEFAULT_PATH
 )
 
-MARK_AS_ADVANCED(RecastDll_PROJECT_DIR)
+MARK_AS_ADVANCED(NAVMESHEXPORT_PROJECT_DIR)
 
 # 配置cpp文件
-file(GLOB RECASTDLL_SOURCES 
+file(GLOB NAVMESHEXPORT_SOURCES 
 	Source/*.cpp
-	../Detour/Source/*.cpp 
-	../DetourCrowd/Source/*.cpp 
-	../DetourTileCache/Source/*.cpp 
-	../Recast/Source/*.cpp
+	../../Detour/Source/*.cpp 
+	../../DetourCrowd/Source/*.cpp 
+	../../DetourTileCache/Source/*.cpp 
+	../../Recast/Source/*.cpp
 )
 
 # 配置头文件
 include_directories(
 	Include
-	../DebugUtils/Include
-	../Detour/Include
-	../DetourCrowd/Include
-	../DetourTileCache/Include
-	../Recast/Include
+	../../DebugUtils/Include
+	../../Detour/Include
+	../../DetourCrowd/Include
+	../../DetourTileCache/Include
+	../../Recast/Include
 )
 
 macro(source_group_by_dir proj_dir source_files)
@@ -59,19 +59,19 @@ macro(source_group_by_dir proj_dir source_files)
     endif(MSVC OR APPLE)
 endmacro(source_group_by_dir)
 
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} RECASTDLL_SOURCES)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} NAVMESHEXPORT_SOURCES)
 
 if (APPLE)
     if (IOS)
         set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD)")
-        add_library(RecastDll STATIC ${RECASTDLL_SOURCES})
+        add_library(NavMeshExport STATIC ${NAVMESHEXPORT_SOURCES})
     else ()
         set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD_64_BIT)")
-        add_library(RecastDll MODULE ${RECASTDLL_SOURCES})
-        set_target_properties ( RecastDll PROPERTIES BUNDLE TRUE )
+        add_library(NavMeshExport MODULE ${NAVMESHEXPORT_SOURCES})
+        set_target_properties ( NavMeshExport PROPERTIES BUNDLE TRUE )
     endif ()
 else ( )
-    add_library(RecastDll SHARED ${RECASTDLL_SOURCES})
+    add_library(NavMeshExport SHARED ${NAVMESHEXPORT_SOURCES})
 endif ( )
 
 # 精简so文件大小
@@ -82,6 +82,6 @@ if (ANDROID)
 endif ( )
 
 if ( WIN32 AND NOT CYGWIN )
-    target_compile_definitions (RecastDll PRIVATE DLL_EXPORTS)
+    target_compile_definitions (NavMeshExport PRIVATE DLL_EXPORTS)
 endif ( )
 

@@ -277,21 +277,53 @@ project "Tests"
 			"Cocoa.framework",
 		}
 
-
-project "RecastDll"
+project "NavMeshExport"
 	language "C++"
 	kind "SharedLib"
 	cppdialect "C++14" -- Catch requires newer C++ features
 	includedirs { 
-		"../RecastDll/Include",
+		"../RecastCustom/NavMeshExport/Include",
+		"../DebugUtils/Include",
 		"../Detour/Include",
 		"../DetourCrowd/Include",
 		"../DetourTileCache/Include",
 		"../Recast/Include"
 	}
 	files {
-		"../RecastDll/Include/*.h",
-		"../RecastDll/Source/*.cpp",
+		"../RecastCustom/NavMeshExport/Include/*.h",
+		"../RecastCustom/NavMeshExport/Source/*.cpp",
+		"../Detour/Include/*.h", 
+		"../Detour/Source/*.cpp",
+		"../DetourCrowd/Include/*.h",
+		"../DetourCrowd/Source/*.cpp",
+		"../DetourTileCache/Include/*.h",
+		"../DetourTileCache/Source/*.cpp",
+		"../Recast/Include/*.h",
+		"../Recast/Source/*.cpp",
+	}
+	
+	-- linux library cflags and libs
+	filter {"system:linux", "toolset:gcc"}
+		buildoptions {
+			"-Wno-error=class-memaccess",
+			"-Wno-error=maybe-uninitialized"
+		}
+		
+
+project "RecastDll"
+	language "C++"
+	kind "SharedLib"
+	cppdialect "C++14" -- Catch requires newer C++ features
+	includedirs { 
+		"../RecastCustom/RecastDll/Include",
+		"../Detour/Include",
+		"../DetourCrowd/Include",
+		"../DetourTileCache/Include",
+		"../Recast/Include"
+	}
+	files {
+		"../RecastCustom/RecastDll/Include/*.h",
+		"../RecastCustom/RecastDll/Source/*.cpp",
 		"../Detour/Include/*.h", 
 		"../Detour/Source/*.cpp",
 		"../DetourCrowd/Include/*.h",
@@ -317,8 +349,8 @@ project "RecastDllTester"
 	targetdir "Bin"
 	
 	includedirs { 
-		"../RecastDll/Tester/Include",
-		"../RecastDll/Include",
+		"../RecastCustom/RecastDllTester/Include",
+		"../RecastCustom/RecastDll/Include",
 		"../DebugUtils/Include",
 		"../Detour/Include",
 		"../DetourCrowd/Include",
@@ -326,10 +358,10 @@ project "RecastDllTester"
 		"../Recast/Include"
 	}
 	files {
-		"../RecastDll/Tester/Include/*.h",
-		"../RecastDll/Tester/Source/*.cpp",
-		"../RecastDll/Include/*.h",
-		"../RecastDll/Source/*.cpp",
+		"../RecastCustom/RecastDllTester/Include/*.h",
+		"../RecastCustom/RecastDllTester/Source/*.cpp",
+		"../RecastCustom/RecastDll/Include/*.h",
+		"../RecastCustom/RecastDll/Source/*.cpp",
 	}
 
 	-- project dependencies

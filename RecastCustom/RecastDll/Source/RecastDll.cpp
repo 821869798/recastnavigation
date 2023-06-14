@@ -16,9 +16,18 @@ NavMeshScene* RecastGet(int32_t id)
 	return NavMeshManager::getInstance()->getScene(id);
 }
 
-bool RecastClear(int32_t id)
+bool RecastClearById(int32_t id)
 {
 	return NavMeshManager::getInstance()->clearScene(id);
+}
+
+bool RecastClear(NavMeshScene* navMeshScene)
+{
+	if (navMeshScene == nullptr)
+	{
+		return false;
+	}
+	return NavMeshManager::getInstance()->clearScene(navMeshScene->getId());
 }
 
 void RecastClearAll()
