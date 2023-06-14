@@ -279,14 +279,42 @@ int32_t NavMeshScene::tryMove(float* extents, float* startPos, float* endPos, fl
 	// If we couldn't find a path, return failure
 	if (nvisited == 0)
 	{
-		return -102;
+		//return -102;
+		return 0;
 	}
 
+	// Height Fix Solution 1: The effect is not good, there will be a high degree of ghost animals
 	// Find the poly height at the position
-	float h = 0;
-	status = navQuery->getPolyHeight(startPolyRef, realEndPos, &h);
-	if (dtStatusSucceed(status)) {
-		realEndPos[1] = h;
+	//dtPolyRef realEndPolyRef = visited[nvisited - 1];
+	//float h = 0;
+	//status = navQuery->getPolyHeight(realEndPolyRef, realEndPos, &h);
+	//if (dtStatusSucceed(status)) {
+	//	realEndPos[1] = h;
+	//}
+
+	// Height Fix Solution 2: Some unnecessary operations
+	//dtPolyRef nearestPoly;
+	//float m_tmpPos[3];
+	//navQuery->findNearestPoly(realEndPos, extents, &navFilter, &nearestPoly, m_tmpPos);
+	//if (nearestPoly)
+	//{
+	//	float h = 0;
+	//	dtStatus status = navQuery->getPolyHeight(nearestPoly, m_tmpPos, &h);
+	//	if (dtStatusSucceed(status)) {
+	//		realEndPos[0] = m_tmpPos[0];
+	//		realEndPos[1] = h;
+	//		realEndPos[2] = m_tmpPos[2];
+	//	}
+	//}
+
+	// Height Fix Solution 3
+	dtPolyRef nearestPoly;
+	navQuery->findNearestPoly(realEndPos, extents, &navFilter, &nearestPoly, m_tmpPos);
+	if (nearestPoly)
+	{
+		realEndPos[0] = m_tmpPos[0];
+		realEndPos[1] = m_tmpPos[1];
+		realEndPos[2] = m_tmpPos[2];
 	}
 
 	// Otherwise, return success
