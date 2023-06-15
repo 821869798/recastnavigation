@@ -886,7 +886,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   character: {fileID: 162103659}
   joystick: {fileID: 1354658170}
-  navMeshText: {fileID: 4900000, guid: 450f7db19e5502e43bfcb66e11e709da, type: 3}
+  navMeshText: {fileID: 4900000, guid: ce5a06d7a7011a04a8b2139ae1454f39, type: 3}
   speed: 5
 --- !u!1 &1089414542
 GameObject:
@@ -1300,6 +1300,10 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 7f9bdfbc5f3835147bf82d13c5446c04, type: 3}
       propertyPath: m_RootOrder
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7f9bdfbc5f3835147bf82d13c5446c04, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7f9bdfbc5f3835147bf82d13c5446c04, type: 3}
       propertyPath: m_LocalPosition.x

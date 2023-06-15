@@ -14,6 +14,8 @@ public class GameMainRecast : MonoBehaviour
 	private float[] sharedEndPos = new float[3];
 	private float[] sharedRealEndPos = new float[3];
 
+	const float Xflip = -1;
+
 	private void Awake()
 	{
 		var bytes = navMeshText.bytes;
@@ -70,18 +72,18 @@ public class GameMainRecast : MonoBehaviour
 
 	private bool TryMove(Vector3 startPos, Vector3 endPos, out Vector3 realEndPos)
 	{
-		sharedStartPos[0] = -startPos.x;
+		sharedStartPos[0] = Xflip * startPos.x;
 		sharedStartPos[1] = startPos.y;
 		sharedStartPos[2] = startPos.z;
 
-		sharedEndPos[0] = -endPos.x;
+		sharedEndPos[0] = Xflip * endPos.x;
 		sharedEndPos[1] = endPos.y;
 		sharedEndPos[2] = endPos.z;
 
 
 		int result = RecastDll.RecastTryMove(navMeshScene, halfExtents, sharedStartPos, sharedEndPos, sharedRealEndPos);
 
-		realEndPos = new Vector3(-sharedRealEndPos[0], sharedRealEndPos[1], sharedRealEndPos[2]);
+		realEndPos = new Vector3(Xflip * sharedRealEndPos[0], sharedRealEndPos[1], sharedRealEndPos[2]);
 
 		if (result < 0)
 		{
@@ -94,13 +96,13 @@ public class GameMainRecast : MonoBehaviour
 
 	private bool FindNearestPoint(Vector3 startPos, out Vector3 realEndPos)
 	{
-		sharedStartPos[0] = -startPos.x;
+		sharedStartPos[0] = Xflip * startPos.x;
 		sharedStartPos[1] = startPos.y;
 		sharedStartPos[2] = startPos.z;
 
 		int result = RecastDll.RecastFindNearestPoint(navMeshScene, halfExtents, sharedStartPos, sharedRealEndPos);
 
-		realEndPos = new Vector3(-sharedRealEndPos[0], sharedRealEndPos[1], sharedRealEndPos[2]);
+		realEndPos = new Vector3(Xflip * sharedRealEndPos[0], sharedRealEndPos[1], sharedRealEndPos[2]);
 
 		if (result < 0)
 		{
@@ -114,4 +116,5 @@ public class GameMainRecast : MonoBehaviour
 	{
 
 	}
+
 }
