@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class GameMainRecast : MonoBehaviour
 {
@@ -9,12 +10,7 @@ public class GameMainRecast : MonoBehaviour
 	public float speed = 5f;
 
 	private IntPtr navMeshScene;
-	private float[] halfExtents = new float[3] { 2, 4, 2 };
-	private float[] sharedStartPos = new float[3];
-	private float[] sharedEndPos = new float[3];
-	private float[] sharedRealEndPos = new float[3];
-
-	const float Xflip = -1;
+	private RecastAgent recastAgent;
 
 	private void Awake()
 	{
@@ -23,7 +19,9 @@ public class GameMainRecast : MonoBehaviour
 		if (navMeshScene == IntPtr.Zero)
 		{
 			Debug.LogError("Load Recast Data failed!");
+			return;
 		}
+		recastAgent = RecastAgent.Create(character, navMeshScene);
 	}
 
 	private void OnDestroy()
@@ -38,9 +36,9 @@ public class GameMainRecast : MonoBehaviour
 	private void OnEnable()
 	{
 		//设置到正确的起始位置
-		if (FindNearestPoint(character.transform.position, out var realEndPos))
+		if (recastAgent.FindNearestPoint(recastAgent.transform.position, out var realEndPos))
 		{
-			character.transform.position = realEndPos;
+			recastAgent.transform.position = realEndPos;
 		}
 
 		joystick.onTouchMove += OnJoystickMove;
@@ -55,61 +53,14 @@ public class GameMainRecast : MonoBehaviour
 
 	private void OnJoystickMove(JoystickData joystickData)
 	{
+		recastAgent.ResetPath();
+
 		var forward = GameUtil.mainCamera.transform.forward;
 		forward = Vector3.ProjectOnPlane(forward, Vector3.up);
-		var rotation = Quaternion.LookRotation(forward) * Quaternion.Euler(0, -joystickData.angle + 90, 0);
-		var offset = rotation * Vector3.forward * speed * joystickData.power * Time.deltaTime;
-		var tryEndPos = character.transform.position + offset;
+		recastAgent.transform.rotation = Quaternion.LookRotation(forward) * Quaternion.Euler(0, -joystickData.angle + 90, 0);
+		var offset = recastAgent.transform.forward * speed * joystickData.power * Time.deltaTime;
+		recastAgent.Move(offset);
 
-
-		if (TryMove(character.transform.position, tryEndPos, out var realEndPos))
-		{
-			character.transform.rotation = rotation;
-			character.transform.position = realEndPos;
-		}
-
-	}
-
-	private bool TryMove(Vector3 startPos, Vector3 endPos, out Vector3 realEndPos)
-	{
-		sharedStartPos[0] = Xflip * startPos.x;
-		sharedStartPos[1] = startPos.y;
-		sharedStartPos[2] = startPos.z;
-
-		sharedEndPos[0] = Xflip * endPos.x;
-		sharedEndPos[1] = endPos.y;
-		sharedEndPos[2] = endPos.z;
-
-
-		int result = RecastDll.RecastTryMove(navMeshScene, halfExtents, sharedStartPos, sharedEndPos, sharedRealEndPos);
-
-		realEndPos = new Vector3(Xflip * sharedRealEndPos[0], sharedRealEndPos[1], sharedRealEndPos[2]);
-
-		if (result < 0)
-		{
-			Debug.LogError("Recast TryMove failed,result:" + result);
-			return false;
-		}
-		return true;
-
-	}
-
-	private bool FindNearestPoint(Vector3 startPos, out Vector3 realEndPos)
-	{
-		sharedStartPos[0] = Xflip * startPos.x;
-		sharedStartPos[1] = startPos.y;
-		sharedStartPos[2] = startPos.z;
-
-		int result = RecastDll.RecastFindNearestPoint(navMeshScene, halfExtents, sharedStartPos, sharedRealEndPos);
-
-		realEndPos = new Vector3(Xflip * sharedRealEndPos[0], sharedRealEndPos[1], sharedRealEndPos[2]);
-
-		if (result < 0)
-		{
-			Debug.LogError("Recast FindNearestPoint failed,result:" + result);
-			return false;
-		}
-		return true;
 	}
 
 	private void OnJoystickUp()
@@ -117,4 +68,18 @@ public class GameMainRecast : MonoBehaviour
 
 	}
 
+	private void Update()
+	{
+		this.recastAgent.Update();
+
+		if (Input.GetMouseButtonDown(0))
+		{
+			Ray ray = GameUtil.mainCamera.ScreenPointToRay(Input.mousePosition);
+
+			if (Physics.Raycast(ray, out var hit))
+			{
+				recastAgent.SetDestination(hit.point);
+			}
+		}
+	}
 }

@@ -26,6 +26,8 @@ public class GameMainNavMesh : MonoBehaviour
 
 	private void OnJoystickMove(JoystickData joystickData)
 	{
+		character.ResetPath();
+
 		var forward = GameUtil.mainCamera.transform.forward;
 		forward = Vector3.ProjectOnPlane(forward, Vector3.up);
 		character.transform.rotation = Quaternion.LookRotation(forward) * Quaternion.Euler(0, -joystickData.angle + 90, 0);
@@ -36,6 +38,19 @@ public class GameMainNavMesh : MonoBehaviour
 	private void OnJoystickUp()
 	{
 
+	}
+
+	private void Update()
+	{
+		if (Input.GetMouseButtonDown(0))
+		{
+			Ray ray = GameUtil.mainCamera.ScreenPointToRay(Input.mousePosition);
+
+			if (Physics.Raycast(ray, out var hit))
+			{
+				character.SetDestination(hit.point);
+			}
+		}
 	}
 
 }
