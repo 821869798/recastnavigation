@@ -108,17 +108,55 @@ int32_t NavMeshScene::init(const char* buffer, int32_t n)
 
 int32_t NavMeshScene::pathfindFollow(float* extents, float* m_spos, float* m_epos, float* m_smoothPath)
 {
+
+
+	dtPolyRef startRef = 0;
+	dtPolyRef endRef = 0;
+	float startNearestPt[3];
+	float endNearestPt[3];
+
+	navQuery->findNearestPoly(m_spos, extents, &navFilter, &startRef, startNearestPt);
+	navQuery->findNearestPoly(m_epos, extents, &navFilter, &endRef, endNearestPt);
+
+	dtPolyRef polys[MAX_POLYS];
+	int npolys;
+	unsigned char straightPathFlags[MAX_POLYS];
+	dtPolyRef straightPathPolys[MAX_POLYS];
+	int nstraightPath = 0;
+
+	navQuery->findPath(startRef, endRef, startNearestPt, endNearestPt, &navFilter, polys, &npolys, MAX_POLYS);
+
+	if (npolys)
+	{
+		float epos1[3];
+		dtVcopy(epos1, endNearestPt);
+
+		if (polys[npolys - 1] != endRef)
+		{
+			navQuery->closestPointOnPoly(polys[npolys - 1], endNearestPt, epos1, 0);
+		}
+
+		navQuery->findStraightPath(startNearestPt, endNearestPt, polys, npolys, m_smoothPath, straightPathFlags, straightPathPolys, &nstraightPath, MAX_POLYS, DT_STRAIGHTPATH_ALL_CROSSINGS);
+	}
+
+	return nstraightPath;
+
+	/*
 	dtPolyRef m_startRef;
 	dtPolyRef m_endRef;
 
-	navQuery->findNearestPoly(m_spos, extents, &navFilter, &m_startRef, 0);
-	navQuery->findNearestPoly(m_epos, extents, &navFilter, &m_endRef, 0);
+	float realStartPos[3];
+	float realEndPos[3];
+
+
+	navQuery->findNearestPoly(m_spos, extents, &navFilter, &m_startRef, realStartPos);
+	navQuery->findNearestPoly(m_epos, extents, &navFilter, &m_endRef, realEndPos);
 
 	int m_npolys = 0;
 	int m_nsmoothPath = 0; //path point count
 	if (m_startRef && m_endRef)
 	{
-		navQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &navFilter, m_polys, &m_npolys, MAX_POLYS);
+		navQuery->findPath(m_startRef, m_endRef, realStartPos, realEndPos, &navFilter, m_polys, &m_npolys, MAX_POLYS);
 
 		if (m_npolys)
 		{
@@ -128,10 +166,10 @@ int32_t NavMeshScene::pathfindFollow(float* extents, float* m_spos, float* m_epo
 			int npolys = m_npolys;
 
 			float iterPos[3], targetPos[3];
-			navQuery->closestPointOnPoly(m_startRef, m_spos, iterPos, 0);
-			navQuery->closestPointOnPoly(polys[npolys - 1], m_epos, targetPos, 0);
+			navQuery->closestPointOnPoly(m_startRef, realStartPos, iterPos, 0);
+			navQuery->closestPointOnPoly(polys[npolys - 1], realEndPos, targetPos, 0);
 
-			static const float STEP_SIZE = 0.5f;
+			static const float STEP_SIZE = 0.3f;
 			static const float SLOP = 0.01f;
 
 			m_nsmoothPath = 0;
@@ -252,6 +290,8 @@ int32_t NavMeshScene::pathfindFollow(float* extents, float* m_spos, float* m_epo
 	}
 
 	return m_nsmoothPath;
+	*/
+
 }
 
 int32_t NavMeshScene::tryMove(float* extents, float* startPos, float* endPos, float* realEndPos)

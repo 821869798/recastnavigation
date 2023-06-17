@@ -24,7 +24,7 @@ class NavMeshScene
 {
 
 private:
-	dtPolyRef m_polys[MAX_POLYS];
+	//dtPolyRef m_polys[MAX_POLYS];
 	int32_t id;
 	float m_tmpPos[3];
 
