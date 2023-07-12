@@ -4,6 +4,20 @@ using UnityEngine;
 
 public class RecastAgent
 {
+	private IntPtr navMeshScene;
+	public Transform transform { private set; get; }
+
+	public virtual float radius { protected set; get; } = 0.5f;
+
+	public virtual float height { protected set; get; } = 2f;
+
+	public float speed { get; set; } = 5;
+
+	/// <summary>
+	/// 人群的id，用于动态避障
+	/// </summary>
+	public int crowdAgentId { private set; get; } = -1;
+
 	public float[] halfExtents = new float[3] { 2, 4, 2 };
 
 	protected float[] sharedStartPos = new float[3];
@@ -11,16 +25,15 @@ public class RecastAgent
 	protected float[] sharedRealEndPos = new float[3];
 	protected float[] smoothPath = new float[256 * 3];
 
+
 	protected int nextPosIndex;
 	protected int smoothPathCount;
 	protected Vector3 nextPos;
 
-	public float speed { get; set; } = 5;
+	/// <summary>
+	/// 是否移动中
+	/// </summary>
 	public bool pathPending { protected get; set; }
-
-	private IntPtr navMeshScene;
-	public Transform transform { private set; get; }
-
 
 	private RecastAgent()
 	{
@@ -35,6 +48,26 @@ public class RecastAgent
 		return recastAgent;
 	}
 
+	public void SetCrowdAgent()
+	{
+		RecastUtility.UnityPos2RecastPos(transform.position, sharedEndPos);
+		crowdAgentId = RecastDll.RecastAddAgent(navMeshScene, sharedRealEndPos, radius, height, speed, 0f);
+	}
+
+	public virtual void UpdateCrowdAgent()
+	{
+		if (crowdAgentId > -1)
+		{
+			RecastUtility.UnityPos2RecastPos(transform.position, sharedEndPos);
+			int result = RecastDll.RecastSetAgentPos(navMeshScene, crowdAgentId, sharedEndPos);
+			if (result < 0)
+			{
+				Debug.LogError("Recast UpdateCrowdAgent failed:" + result);
+			}
+		}
+
+	}
+
 	public virtual void Move(Vector3 offset)
 	{
 		var tryEndPos = this.transform.position + offset;
@@ -42,6 +75,7 @@ public class RecastAgent
 		{
 			TurnLook(realEndPos);
 			this.transform.position = realEndPos;
+			UpdateCrowdAgent();
 		}
 	}
 
@@ -55,18 +89,12 @@ public class RecastAgent
 
 	protected virtual bool TryMove(Vector3 startPos, Vector3 endPos, out Vector3 realEndPos)
 	{
-		sharedStartPos[0] = -startPos.x;
-		sharedStartPos[1] = startPos.y;
-		sharedStartPos[2] = startPos.z;
-
-		sharedEndPos[0] = -endPos.x;
-		sharedEndPos[1] = endPos.y;
-		sharedEndPos[2] = endPos.z;
-
+		RecastUtility.UnityPos2RecastPos(startPos, sharedStartPos);
+		RecastUtility.UnityPos2RecastPos(endPos, sharedEndPos);
 
 		int result = RecastDll.RecastTryMove(navMeshScene, halfExtents, sharedStartPos, sharedEndPos, sharedRealEndPos);
 
-		realEndPos = new Vector3(-sharedRealEndPos[0], sharedRealEndPos[1], sharedRealEndPos[2]);
+		realEndPos = RecastUtility.RecastPos2UnityPos(sharedRealEndPos);
 
 		if (result < 0)
 		{
@@ -79,13 +107,11 @@ public class RecastAgent
 
 	public virtual bool FindNearestPoint(Vector3 startPos, out Vector3 realEndPos)
 	{
-		sharedStartPos[0] = -startPos.x;
-		sharedStartPos[1] = startPos.y;
-		sharedStartPos[2] = startPos.z;
+		RecastUtility.UnityPos2RecastPos(startPos, sharedStartPos);
 
 		int result = RecastDll.RecastFindNearestPoint(navMeshScene, halfExtents, sharedStartPos, sharedRealEndPos);
 
-		realEndPos = new Vector3(-sharedRealEndPos[0], sharedRealEndPos[1], sharedRealEndPos[2]);
+		realEndPos = RecastUtility.RecastPos2UnityPos(sharedRealEndPos);
 
 		if (result < 0)
 		{
@@ -99,13 +125,8 @@ public class RecastAgent
 	{
 		var startPos = transform.position;
 
-		sharedStartPos[0] = -startPos.x;
-		sharedStartPos[1] = startPos.y;
-		sharedStartPos[2] = startPos.z;
-
-		sharedEndPos[0] = -target.x;
-		sharedEndPos[1] = target.y;
-		sharedEndPos[2] = target.z;
+		RecastUtility.UnityPos2RecastPos(startPos, sharedStartPos);
+		RecastUtility.UnityPos2RecastPos(target, sharedEndPos);
 
 		smoothPathCount = RecastDll.RecastFindFollow(navMeshScene, halfExtents, sharedStartPos, sharedEndPos, smoothPath);
 		if (smoothPathCount <= 0)
@@ -130,7 +151,7 @@ public class RecastAgent
 	private void PathNextPosition()
 	{
 		nextPosIndex++;
-		nextPos.Set(-smoothPath[nextPosIndex * 3], smoothPath[nextPosIndex * 3 + 1], smoothPath[nextPosIndex * 3 + 2]);
+		RecastUtility.SetIndexPathPos2Unity(smoothPath, nextPosIndex, ref nextPos);
 	}
 
 	public virtual void Update()
@@ -148,6 +169,7 @@ public class RecastAgent
 		if (displacement.sqrMagnitude >= (nextPos - transform.position).sqrMagnitude)
 		{
 			transform.position = nextPos;
+			UpdateCrowdAgent();
 
 			if (smoothPathCount == nextPosIndex + 1)
 			{
@@ -161,6 +183,7 @@ public class RecastAgent
 		{
 			// Otherwise, move in the direction of the next position
 			transform.position += displacement;
+			UpdateCrowdAgent();
 		}
 	}
 

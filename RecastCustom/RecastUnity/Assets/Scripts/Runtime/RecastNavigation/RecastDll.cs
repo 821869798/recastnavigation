@@ -38,4 +38,29 @@ public static class RecastDll
 
 	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
 	public static extern int RecastTryMove(IntPtr navMeshScene, float[] extents, float[] startPos, float[] endPos, float[] realEndPos);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastAddAgent(IntPtr navMeshScene, float[] pos, float radius, float height, float maxSpeed, float maxAcceleration);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastRemoveAgent(IntPtr navMeshScene, int agentId);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastClearAgent(IntPtr navMeshScene);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastGetAgentPos(IntPtr navMeshScene, int agentId, float[] pos);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastGetAgentPosWithState(IntPtr navMeshScene, int agentId, float[] pos, ref int targetState);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastSetAgentPos(IntPtr navMeshScene, int agentId, float[] pos);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastSetAgentMoveTarget(IntPtr navMeshScene, int agentId, float[] pos, bool adjust = false);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern void RecastUpdate(IntPtr navMeshScene, float deltaTime);
+
 }
