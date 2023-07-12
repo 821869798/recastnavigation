@@ -35,6 +35,7 @@ void RecastClearAll()
 	NavMeshManager::getInstance()->clearAll();
 }
 
+
 bool RecastFindRandomPoint(NavMeshScene* navMeshScene, float* pos)
 {
 	if (navMeshScene == nullptr || pos == nullptr)
@@ -159,5 +160,98 @@ int32_t RecastTryMove(NavMeshScene* navMeshScene, float* extents, float* startPo
 	}
 
 	return navMeshScene->tryMove(extents, startPos, endPos, realEndPos);
+}
+
+int RecastAddAgent(NavMeshScene* navMeshScene, float* pos, float radius, float height, float maxSpeed, float maxAcceleration)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -2;
+	}
+	if (pos == nullptr)
+	{
+		return -3;
+	}
+
+	return navMeshScene->addAgent(pos, radius, height, maxSpeed, maxAcceleration);
+}
+
+void RecastRemoveAgent(NavMeshScene* navMeshScene, int agentId)
+{
+	if (navMeshScene == nullptr)
+	{
+		return;
+	}
+	navMeshScene->removeAgent(agentId);
+}
+
+void RecastClearAgent(NavMeshScene* navMeshScene)
+{
+	if (navMeshScene == nullptr)
+	{
+		return;
+	}
+	navMeshScene->clearAgent();
+}
+
+int32_t RecastGetAgentPos(NavMeshScene* navMeshScene, int agentId, float* pos)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -2;
+	}
+	if (pos == nullptr)
+	{
+		return -3;
+	}
+	return navMeshScene->getAgentPos(agentId, pos);
+}
+
+int32_t RecastGetAgentPosWithState(NavMeshScene* navMeshScene, int agentId, float* pos, int32_t* targetState)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -2;
+	}
+	if (pos == nullptr)
+	{
+		return -3;
+	}
+	return navMeshScene->getAgentPosWithState(agentId, pos, targetState);
+}
+
+int32_t RecastSetAgentPos(NavMeshScene* navMeshScene, int agentId, const float* pos)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -2;
+	}
+	if (pos == nullptr)
+	{
+		return -3;
+	}
+	return navMeshScene->setAgentPos(agentId, pos);
+}
+
+int32_t RecastSetAgentMoveTarget(NavMeshScene* navMeshScene, int agentId, const float* pos, bool adjust)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -2;
+	}
+	if (pos == nullptr)
+	{
+		return -3;
+	}
+	return navMeshScene->setAgentMoveTarget(agentId, pos, adjust);
+}
+
+void RecastUpdate(NavMeshScene* navMeshScene, float deltaTime)
+{
+	if (navMeshScene == nullptr)
+	{
+		return;
+	}
+	navMeshScene->update(deltaTime);
 }
 

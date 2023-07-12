@@ -93,16 +93,26 @@ int32_t NavMeshScene::getId()
 
 int32_t NavMeshScene::init(const char* buffer, int32_t n)
 {
+	if (inited)
+	{
+		return -100;
+	}
+
+	inited = true;
 	int32_t ret = initNav(buffer, n, navMesh);
 	std::string s;
 
 	if (ret != 0)
 	{
-		return -1;
+		return ret;
 	}
 
 	navQuery = new dtNavMeshQuery();
 	navQuery->init(navMesh, 4096);
+
+	crowd = dtAllocCrowd();
+	crowd->init(500, 0.6f, navMesh);
+
 	return 0;
 }
 
@@ -355,16 +365,142 @@ int32_t NavMeshScene::tryMove(float* extents, float* startPos, float* endPos, fl
 		realEndPos[0] = m_tmpPos[0];
 		realEndPos[1] = m_tmpPos[1];
 		realEndPos[2] = m_tmpPos[2];
+		float h = 0;
+		dtStatus status = navQuery->getPolyHeight(nearestPoly, m_tmpPos, &h);
+		if (dtStatusSucceed(status)) {
+			realEndPos[1] = h;
+		}
 	}
 
 	// Otherwise, return success
 	return 0;
 }
 
+int NavMeshScene::addAgent(float* pos, float radius, float height, float maxSpeed, float maxAcceleration)
+{
+	dtCrowdAgentParams ap;
+	memset(&ap, 0, sizeof(ap));
+	ap.radius = radius;
+	ap.height = height;
+	ap.maxAcceleration = maxAcceleration;
+	ap.maxSpeed = maxSpeed;
+	ap.collisionQueryRange = ap.radius * 12.0f;
+	ap.pathOptimizationRange = ap.radius * 30.0f;
+	//TODO modify
+	ap.updateFlags = DT_CROWD_ANTICIPATE_TURNS | DT_CROWD_OPTIMIZE_VIS | DT_CROWD_OPTIMIZE_TOPO | DT_CROWD_OBSTACLE_AVOIDANCE;
+	ap.obstacleAvoidanceType = 3;
+	ap.separationWeight = 2.0f;
+
+	int agentId = crowd->addAgent(pos, &ap);
+
+	return agentId;
+}
+
+void NavMeshScene::removeAgent(int agentId)
+{
+	crowd->removeAgent(agentId);
+}
+
+void NavMeshScene::clearAgent()
+{
+	for (int i = 0; i < crowd->getAgentCount(); ++i) {
+		if (crowd->getAgent(i)->active) {
+			crowd->removeAgent(i);
+		}
+	}
+}
+
+int32_t NavMeshScene::getAgentPos(int agentId, float* pos)
+{
+	const dtCrowdAgent* agent = crowd->getAgent(agentId);
+
+	if (agent && agent->active)
+	{
+		dtVcopy(pos, agent->npos);
+		return 0;
+	}
+	return -1;
+}
+
+int32_t NavMeshScene::getAgentPosWithState(int agentId, float* pos, int32_t* targetState)
+{
+	const dtCrowdAgent* agent = crowd->getAgent(agentId);
+
+	if (agent && agent->active)
+	{
+		*targetState = agent->targetState;
+		dtVcopy(pos, agent->npos);
+		return 0;
+	}
+	return -1;
+}
+
+int32_t NavMeshScene::setAgentPos(int agentId, const float* pos)
+{
+	dtCrowdAgent* ag = crowd->getEditableAgent(agentId);
+
+	if (!(ag && ag->active))
+	{
+		return -1;
+	}
+
+	float nearest[3];
+	dtPolyRef ref = 0;
+	dtVcopy(nearest, pos);
+	dtStatus status = navQuery->findNearestPoly(pos, crowd->getQueryHalfExtents(), &navFilter, &ref, nearest);
+	if (dtStatusFailed(status))
+	{
+		return -2;
+	}
+
+	ag->corridor.reset(ref, nearest);
+	ag->boundary.reset();
+	ag->partial = false;
+
+	dtVcopy(ag->npos, nearest);
+
+	return 0;
+}
+
+int32_t NavMeshScene::setAgentMoveTarget(int agentId, const float* pos, bool adjust)
+{
+	const dtCrowdAgent* agent = crowd->getAgent(agentId);
+
+	if (!(agent && agent->active))
+	{
+		return -1;
+	}
+
+	if (adjust)
+	{
+		float vel[3];
+
+		calcVel(vel, agent->npos, pos, agent->params.maxSpeed);
+		crowd->requestMoveVelocity(agentId, vel);
+	}
+	else
+	{
+		dtPolyRef targetRef;
+		navQuery->findNearestPoly(pos, crowd->getQueryHalfExtents(), &navFilter, &targetRef, m_tmpPos);
+
+		crowd->requestMoveTarget(agentId, targetRef, m_tmpPos);
+	}
+	return 0;
+}
+
+void NavMeshScene::update(float deltaTime)
+{
+	if (crowd)
+	{
+		crowd->update(deltaTime, NULL);
+	}
+}
+
 
 NavMeshScene::NavMeshScene(int32_t id)
 {
 	this->id = id;
+	inited = false;
 	navFilter.setIncludeFlags(SAMPLE_POLYFLAGS_ALL ^ SAMPLE_POLYFLAGS_DISABLED);
 	navFilter.setExcludeFlags(0);
 	navMesh = nullptr;
@@ -373,15 +509,20 @@ NavMeshScene::NavMeshScene(int32_t id)
 
 NavMeshScene::~NavMeshScene()
 {
-	if (navQuery != nullptr)
+	if (navQuery)
 	{
 		dtFreeNavMeshQuery(navQuery);
-		navQuery = nullptr;
+		navQuery = NULL;
 	}
-	if (navMesh != nullptr)
+	if (navMesh)
 	{
 		dtFreeNavMesh(navMesh);
-		navMesh = nullptr;
+		navMesh = NULL;
+	}
+	if (crowd)
+	{
+		dtFreeCrowd(crowd);
+		crowd = NULL;
 	}
 }
 

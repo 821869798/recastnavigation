@@ -188,3 +188,12 @@ inline static int fixupShortcuts(dtPolyRef* path, int npath, dtNavMeshQuery* nav
 
 	return npath;
 }
+
+
+inline static void calcVel(float* vel, const float* pos, const float* tgt, const float speed)
+{
+	dtVsub(vel, tgt, pos);
+	vel[1] = 0.0;
+	dtVnormalize(vel);
+	dtVscale(vel, vel, speed);
+}

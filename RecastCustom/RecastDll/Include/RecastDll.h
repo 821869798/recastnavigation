@@ -23,6 +23,14 @@ extern "C" {
 	EXPORT_API int32_t RecastFindRandomPointAroundCircle(NavMeshScene* navMeshScene, float* extents, const float* centerPos, const float maxRadius, float* pos);
 	EXPORT_API int32_t RecastFindFollow(NavMeshScene* navMeshScene, float* extents, float* startPos, float* endPos, float* smoothPath);
 	EXPORT_API int32_t RecastTryMove(NavMeshScene* navMeshScene, float* extents, float* startPos, float* endPos, float* realEndPos);
+	EXPORT_API int RecastAddAgent(NavMeshScene* navMeshScene, float* pos, float radius, float height, float maxSpeed, float maxAcceleration);
+	EXPORT_API void RecastRemoveAgent(NavMeshScene* navMeshScene, int agentId);
+	EXPORT_API void RecastClearAgent(NavMeshScene* navMeshScene);
+	EXPORT_API int32_t RecastGetAgentPos(NavMeshScene* navMeshScene, int agentId, float* pos);
+	EXPORT_API int32_t RecastGetAgentPosWithState(NavMeshScene* navMeshScene, int agentId, float* pos, int32_t* targetState);
+	EXPORT_API int32_t RecastSetAgentPos(NavMeshScene* navMeshScene, int agentId, const float* pos);
+	EXPORT_API int32_t RecastSetAgentMoveTarget(NavMeshScene* navMeshScene, int agentId, const float* pos, bool adjust);
+	EXPORT_API void RecastUpdate(NavMeshScene* navMeshScene, float deltaTime);
 #ifdef __cplusplus
 }
 #endif
