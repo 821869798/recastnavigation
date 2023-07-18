@@ -61,8 +61,8 @@ int main(int /*argc*/, char** /*argv*/) {
 
 	std::vector<char> buffer;
 	//std::string path = R"(E:\work\lhcx2\Assets\Res\12_ModuleCfg\NavMesh\level_test1.navmesh.bytes)";
-	std::string path = R"(../../Bin/bad.navmesh.bytes)";
-	//std::string path = R"(../../Bin/solo_navmesh.bin)";
+	//std::string path = R"(../../Bin/bad.navmesh.bytes)";
+	std::string path = R"(../../Bin/solo_navmesh.bin)";
 	auto result = readFileToBuffer(path.c_str(), buffer);
 	if (result != 0) {
 		return 1;

@@ -73,6 +73,11 @@ int32_t RecastFindNearestPoint(NavMeshScene* navMeshScene, float* extents, float
 	{
 		return -100;
 	}
+	if (!startRef)
+	{
+		return -10;
+	}
+
 	return 0;
 }
 
