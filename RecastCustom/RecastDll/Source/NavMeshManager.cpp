@@ -11,7 +11,7 @@ NavMeshManager* NavMeshManager::getInstance()
 	return instance;
 }
 
-NavMeshScene* NavMeshManager::newScene(int32_t id, const char* buffer, int32_t n)
+NavMeshScene* NavMeshManager::newScene(int32_t id, const char* buffer, int32_t n, bool dynamic)
 {
 	const auto it = navMeshScenes.find(id);
 	if (it != navMeshScenes.end()) {
@@ -19,7 +19,16 @@ NavMeshScene* NavMeshManager::newScene(int32_t id, const char* buffer, int32_t n
 		navMeshScenes.erase(it);
 	}
 
-	NavMeshScene* navMeshScene = new NavMeshScene(id);
+	NavMeshScene* navMeshScene;
+	if (dynamic)
+	{
+		navMeshScene = new DynNavMeshScene(id);
+	}
+	else
+	{
+		navMeshScene = new NavMeshScene(id);
+	}
+
 	int32_t ret = navMeshScene->init(buffer, n);
 
 	if (ret != 0)

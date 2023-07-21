@@ -24,12 +24,17 @@ find_path(RecastDll_PROJECT_DIR NAMES SConstruct
 MARK_AS_ADVANCED(RecastDll_PROJECT_DIR)
 
 # 配置cpp文件
-file(GLOB RECASTDLL_SOURCES 
+file(GLOB_RECURSE RECASTDLL_CPP_SOURCES  
 	Source/*.cpp
 	../../Detour/Source/*.cpp 
 	../../DetourCrowd/Source/*.cpp 
 	../../DetourTileCache/Source/*.cpp 
 	../../Recast/Source/*.cpp
+)
+
+# 配置c文件
+file(GLOB_RECURSE RECASTDLL_C_SOURCES
+    ../../RecastDemo/Contrib/fastlz/*.c
 )
 
 # 配置头文件
@@ -40,6 +45,7 @@ include_directories(
 	../../DetourCrowd/Include
 	../../DetourTileCache/Include
 	../../Recast/Include
+	../../RecastDemo/Contrib/fastlz
 )
 
 macro(source_group_by_dir proj_dir source_files)
@@ -59,25 +65,35 @@ macro(source_group_by_dir proj_dir source_files)
     endif(MSVC OR APPLE)
 endmacro(source_group_by_dir)
 
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} RECASTDLL_SOURCES)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} RECASTDLL_CPP_SOURCES )
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} RECASTDLL_C_SOURCES)
 
 if (APPLE)
     if (IOS)
         set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD)")
-        add_library(RecastDll STATIC ${RECASTDLL_SOURCES})
+        add_library(RecastDll STATIC ${RECASTDLL_CPP_SOURCES} ${RECASTDLL_C_SOURCES})
     else ()
         set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD_64_BIT)")
-        add_library(RecastDll MODULE ${RECASTDLL_SOURCES})
+        add_library(RecastDll MODULE ${RECASTDLL_CPP_SOURCES} ${RECASTDLL_C_SOURCES})
         set_target_properties ( RecastDll PROPERTIES BUNDLE TRUE )
     endif ()
 else ( )
-    add_library(RecastDll SHARED ${RECASTDLL_SOURCES})
+    add_library(RecastDll SHARED ${RECASTDLL_CPP_SOURCES} ${RECASTDLL_C_SOURCES})
 endif ( )
 
 # 精简so文件大小
 if (ANDROID)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -Os -Wall")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Os -Wall")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -Os -Wall")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Os -Wall")
+	
+	    # 为C++源文件设置编译标志
+    set_source_files_properties(${RECASTDLL_CPP_SOURCES} PROPERTIES 
+        COMPILE_FLAGS "-std=c++11 -Os -Wall")
+
+    # 为C源文件设置编译标志
+    set_source_files_properties(${RECASTDLL_C_SOURCES} PROPERTIES 
+        COMPILE_FLAGS "-std=c11 -Os -Wall")
+		
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -s")
 endif ( )
 

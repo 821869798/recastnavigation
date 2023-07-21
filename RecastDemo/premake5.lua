@@ -319,7 +319,8 @@ project "RecastDll"
 		"../Detour/Include",
 		"../DetourCrowd/Include",
 		"../DetourTileCache/Include",
-		"../Recast/Include"
+		"../Recast/Include",
+		"../RecastDemo/Contrib/fastlz",
 	}
 	files {
 		"../RecastCustom/RecastDll/Include/*.h",
@@ -332,13 +333,15 @@ project "RecastDll"
 		"../DetourTileCache/Source/*.cpp",
 		"../Recast/Include/*.h",
 		"../Recast/Source/*.cpp",
+		"../RecastDemo/Contrib/fastlz/*.h",
+		"../RecastDemo/Contrib/fastlz/*.c",
 	}
 	
 	-- linux library cflags and libs
 	filter {"system:linux", "toolset:gcc"}
 		buildoptions {
 			"-Wno-error=class-memaccess",
-			"-Wno-error=maybe-uninitialized"
+			"-Wno-error=maybe-uninitialized",
 		}
 	
 project "RecastDllTester"
@@ -355,13 +358,16 @@ project "RecastDllTester"
 		"../Detour/Include",
 		"../DetourCrowd/Include",
 		"../DetourTileCache/Include",
-		"../Recast/Include"
+		"../Recast/Include",
+		"../RecastDemo/Contrib/fastlz",
 	}
 	files {
 		"../RecastCustom/RecastDllTester/Include/*.h",
 		"../RecastCustom/RecastDllTester/Source/*.cpp",
 		"../RecastCustom/RecastDll/Include/*.h",
 		"../RecastCustom/RecastDll/Source/*.cpp",
+		"../RecastDemo/Contrib/fastlz/*.h",
+		"../RecastDemo/Contrib/fastlz/*.c",
 	}
 
 	-- project dependencies
@@ -371,4 +377,5 @@ project "RecastDllTester"
 		"DetourCrowd",
 		"DetourTileCache",
 		"Recast",
+		"RecastDll",
 	}

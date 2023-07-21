@@ -7,6 +7,28 @@
 static const int MAX_POLYS = 256;
 static const int MAX_SMOOTH = 2048;
 
+enum SamplePolyFlags
+{
+	SAMPLE_POLYFLAGS_WALK = 0x01,		// Ability to walk (ground, grass, road)
+	SAMPLE_POLYFLAGS_SWIM = 0x02,		// Ability to swim (water).
+	SAMPLE_POLYFLAGS_DOOR = 0x04,		// Ability to move through doors.
+	SAMPLE_POLYFLAGS_JUMP = 0x08,		// Ability to jump.
+	SAMPLE_POLYFLAGS_DISABLED = 0x10,		// Disabled polygon
+	SAMPLE_POLYFLAGS_ALL = 0xffff	// All abilities.
+};
+
+/// These are just sample areas to use consistent values across the samples.
+/// The use should specify these base on his needs.
+enum SamplePolyAreas
+{
+	SAMPLE_POLYAREA_GROUND,
+	SAMPLE_POLYAREA_WATER,
+	SAMPLE_POLYAREA_ROAD,
+	SAMPLE_POLYAREA_DOOR,
+	SAMPLE_POLYAREA_GRASS,
+	SAMPLE_POLYAREA_JUMP
+};
+
 
 // Returns a random number [0..1]
 inline static float frand()

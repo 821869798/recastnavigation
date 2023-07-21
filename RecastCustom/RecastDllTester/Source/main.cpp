@@ -57,29 +57,92 @@ void test_RecastFindNearestPoint(NavMeshScene* navMeshScene)
 
 }
 
-int main(int /*argc*/, char** /*argv*/) {
+void testSoleNavMesh()
+{
+	printf("start testSoleNavMesh\n");
 
 	std::vector<char> buffer;
-	//std::string path = R"(E:\work\lhcx2\Assets\Res\12_ModuleCfg\NavMesh\level_test1.navmesh.bytes)";
-	//std::string path = R"(../../Bin/bad.navmesh.bytes)";
 	std::string path = R"(../../Bin/solo_navmesh.bin)";
 	auto result = readFileToBuffer(path.c_str(), buffer);
 	if (result != 0) {
-		return 1;
+		return;
 	}
 
 	const char* data = buffer.data();
 	int32_t n = static_cast<int32_t>(buffer.size());
 
-	auto recast = RecastLoad(1, data, n);
+	auto recast = RecastLoad(1, data, n, false);
 	if (recast == nullptr) {
-		printf("load recast binary failed");
-		return 1;
+		printf("load sole navmesh recast binary failed");
+		return;
 	}
 
 	test_RecastFindRandomPoint(recast);
 
 	test_RecastFindNearestPoint(recast);
+}
+
+void test_RecastAddBoxCenterObstacle(NavMeshScene* navMeshScene)
+{
+	float targetPos[3];
+	targetPos[0] = -0.26572;
+	targetPos[1] = -0.74188;
+	targetPos[2] = -3.63819;
+
+	float extents[3];
+	extents[0] = 1;
+	extents[1] = 1;
+	extents[2] = 0.5;
+
+	uint32_t obstacleId;
+	int result = RecastAddBoxCenterObstacle(navMeshScene, &obstacleId, targetPos, extents, 0);
+	if (result != 0) {
+		printf("RecastAddBoxCenterObstacle failed:%d\n", result);
+		return;
+	}
+
+	result = RecastUpdateObstacles(navMeshScene, false);
+	if (result != 0) {
+		printf("UpdateObstacles failed:%d\n", result);
+		return;
+	}
+
+	printf("RecastAddBoxCenterObstacle result:%d\n", obstacleId);
+
+}
+
+void testTileCache()
+{
+	printf("start testTileCache\n");
+
+	std::vector<char> buffer;
+	std::string path = R"(../../Bin/all_tiles_tilecache.bin)";
+	auto result = readFileToBuffer(path.c_str(), buffer);
+	if (result != 0) {
+		return;
+	}
+
+	const char* data = buffer.data();
+	int32_t n = static_cast<int32_t>(buffer.size());
+
+	auto recast = RecastLoad(1, data, n, true);
+	if (recast == nullptr) {
+		printf("load tilecache recast binary failed");
+		return;
+	}
+
+	test_RecastFindRandomPoint(recast);
+
+	test_RecastFindNearestPoint(recast);
+
+	test_RecastAddBoxCenterObstacle(recast);
+}
+
+int main(int /*argc*/, char** /*argv*/) {
+
+	testSoleNavMesh();
+
+	testTileCache();
 
 	return 0;
 }

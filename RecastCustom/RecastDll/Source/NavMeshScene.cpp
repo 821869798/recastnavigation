@@ -1,24 +1,11 @@
 #include <cstring>
-#include <string>
 #include "NavMeshScene.h"
 #include "RecastUtility.h"
 #include "DetourCommon.h"
 
-struct NavMeshSetHeader
-{
-	int magic;
-	int version;
-	int numTiles;
-	dtNavMeshParams params;
-};
 
-struct NavMeshTileHeader
-{
-	dtTileRef tileRef;
-	int dataSize;
-};
 
-int32_t initNav(const char* buffer, int32_t n, dtNavMesh*& navMesh)
+int32_t NavMeshScene::initNavmesh(const char* buffer, int32_t n)
 {
 	int index = 0;
 	// Read header.
@@ -41,12 +28,12 @@ int32_t initNav(const char* buffer, int32_t n, dtNavMesh*& navMesh)
 		return -3;
 	}
 
-	dtNavMesh* mesh = dtAllocNavMesh();
-	if (!mesh)
+	navMesh = dtAllocNavMesh();
+	if (!navMesh)
 	{
 		return -4;
 	}
-	dtStatus status = mesh->init(&header.params);
+	dtStatus status = navMesh->init(&header.params);
 	if (dtStatusFailed(status))
 	{
 		return -5;
@@ -60,7 +47,7 @@ int32_t initNav(const char* buffer, int32_t n, dtNavMesh*& navMesh)
 		count = sizeof(NavMeshTileHeader);
 		if (index + count > n)
 		{
-			return -6;
+			return -11;
 		}
 		memcpy(&tileHeader, buffer + index, count);
 		index += count;
@@ -75,14 +62,14 @@ int32_t initNav(const char* buffer, int32_t n, dtNavMesh*& navMesh)
 		count = tileHeader.dataSize;
 		if (index + count > n)
 		{
-			return -7;
+			dtFree(data);
+			return -12;
 		}
 		memcpy(data, buffer + index, count);
 		index += count;
 
-		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
+		navMesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
 	}
-	navMesh = mesh;
 	return 0;
 }
 
@@ -99,8 +86,7 @@ int32_t NavMeshScene::init(const char* buffer, int32_t n)
 	}
 
 	inited = true;
-	int32_t ret = initNav(buffer, n, navMesh);
-	std::string s;
+	int32_t ret = initNavmesh(buffer, n);
 
 	if (ret != 0)
 	{
@@ -376,7 +362,7 @@ int32_t NavMeshScene::tryMove(float* extents, float* startPos, float* endPos, fl
 	return 0;
 }
 
-int NavMeshScene::addAgent(float* pos, float radius, float height, float maxSpeed, float maxAcceleration)
+int32_t NavMeshScene::addAgent(float* pos, float radius, float height, float maxSpeed, float maxAcceleration)
 {
 	dtCrowdAgentParams ap;
 	memset(&ap, 0, sizeof(ap));
@@ -410,7 +396,7 @@ void NavMeshScene::clearAgent()
 	}
 }
 
-int32_t NavMeshScene::getAgentPos(int agentId, float* pos)
+int32_t NavMeshScene::getAgentPos(int32_t agentId, float* pos)
 {
 	const dtCrowdAgent* agent = crowd->getAgent(agentId);
 
@@ -422,7 +408,7 @@ int32_t NavMeshScene::getAgentPos(int agentId, float* pos)
 	return -1;
 }
 
-int32_t NavMeshScene::getAgentPosWithState(int agentId, float* pos, int32_t* targetState)
+int32_t NavMeshScene::getAgentPosWithState(int32_t agentId, float* pos, int32_t* targetState)
 {
 	const dtCrowdAgent* agent = crowd->getAgent(agentId);
 
@@ -435,7 +421,7 @@ int32_t NavMeshScene::getAgentPosWithState(int agentId, float* pos, int32_t* tar
 	return -1;
 }
 
-int32_t NavMeshScene::setAgentPos(int agentId, const float* pos)
+int32_t NavMeshScene::setAgentPos(int32_t agentId, const float* pos)
 {
 	dtCrowdAgent* ag = crowd->getEditableAgent(agentId);
 
@@ -462,7 +448,7 @@ int32_t NavMeshScene::setAgentPos(int agentId, const float* pos)
 	return 0;
 }
 
-int32_t NavMeshScene::setAgentMoveTarget(int agentId, const float* pos, bool adjust)
+int32_t NavMeshScene::setAgentMoveTarget(int32_t agentId, const float* pos, bool adjust)
 {
 	const dtCrowdAgent* agent = crowd->getAgent(agentId);
 

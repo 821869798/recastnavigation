@@ -1,14 +1,12 @@
 #include <ctime>
 #include "RecastDll.h"
 #include "NavMeshManager.h"
-#include "RecastUtility.h"
 
 
-
-NavMeshScene* RecastLoad(int32_t id, const char* buffer, int32_t n)
+NavMeshScene* RecastLoad(int32_t id, const char* buffer, int32_t n, bool isTileCache)
 {
 	srand((int)time(0));
-	return NavMeshManager::getInstance()->newScene(id, buffer, n);
+	return NavMeshManager::getInstance()->newScene(id, buffer, n, isTileCache);
 }
 
 NavMeshScene* RecastGet(int32_t id)
@@ -167,7 +165,7 @@ int32_t RecastTryMove(NavMeshScene* navMeshScene, float* extents, float* startPo
 	return navMeshScene->tryMove(extents, startPos, endPos, realEndPos);
 }
 
-int RecastAddAgent(NavMeshScene* navMeshScene, float* pos, float radius, float height, float maxSpeed, float maxAcceleration)
+int32_t RecastAddAgent(NavMeshScene* navMeshScene, float* pos, float radius, float height, float maxSpeed, float maxAcceleration)
 {
 	if (navMeshScene == nullptr)
 	{
@@ -181,7 +179,7 @@ int RecastAddAgent(NavMeshScene* navMeshScene, float* pos, float radius, float h
 	return navMeshScene->addAgent(pos, radius, height, maxSpeed, maxAcceleration);
 }
 
-void RecastRemoveAgent(NavMeshScene* navMeshScene, int agentId)
+void RecastRemoveAgent(NavMeshScene* navMeshScene, int32_t agentId)
 {
 	if (navMeshScene == nullptr)
 	{
@@ -199,7 +197,7 @@ void RecastClearAgent(NavMeshScene* navMeshScene)
 	navMeshScene->clearAgent();
 }
 
-int32_t RecastGetAgentPos(NavMeshScene* navMeshScene, int agentId, float* pos)
+int32_t RecastGetAgentPos(NavMeshScene* navMeshScene, int32_t agentId, float* pos)
 {
 	if (navMeshScene == nullptr)
 	{
@@ -212,7 +210,7 @@ int32_t RecastGetAgentPos(NavMeshScene* navMeshScene, int agentId, float* pos)
 	return navMeshScene->getAgentPos(agentId, pos);
 }
 
-int32_t RecastGetAgentPosWithState(NavMeshScene* navMeshScene, int agentId, float* pos, int32_t* targetState)
+int32_t RecastGetAgentPosWithState(NavMeshScene* navMeshScene, int32_t agentId, float* pos, int32_t* targetState)
 {
 	if (navMeshScene == nullptr)
 	{
@@ -225,7 +223,7 @@ int32_t RecastGetAgentPosWithState(NavMeshScene* navMeshScene, int agentId, floa
 	return navMeshScene->getAgentPosWithState(agentId, pos, targetState);
 }
 
-int32_t RecastSetAgentPos(NavMeshScene* navMeshScene, int agentId, const float* pos)
+int32_t RecastSetAgentPos(NavMeshScene* navMeshScene, int32_t agentId, const float* pos)
 {
 	if (navMeshScene == nullptr)
 	{
@@ -238,7 +236,7 @@ int32_t RecastSetAgentPos(NavMeshScene* navMeshScene, int agentId, const float* 
 	return navMeshScene->setAgentPos(agentId, pos);
 }
 
-int32_t RecastSetAgentMoveTarget(NavMeshScene* navMeshScene, int agentId, const float* pos, bool adjust)
+int32_t RecastSetAgentMoveTarget(NavMeshScene* navMeshScene, int32_t agentId, const float* pos, bool adjust)
 {
 	if (navMeshScene == nullptr)
 	{
@@ -260,3 +258,71 @@ void RecastUpdate(NavMeshScene* navMeshScene, float deltaTime)
 	navMeshScene->update(deltaTime);
 }
 
+int32_t RecastAddObstacle(NavMeshScene* navMeshScene, uint32_t* obstacleId, const float* pos, const float radius, const float height)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -3;
+	}
+	if (pos == nullptr)
+	{
+		return -4;
+	}
+
+	return navMeshScene->addObstacle(obstacleId, pos, radius, height);
+}
+
+int32_t RecastAddBoxObstacle(NavMeshScene* navMeshScene, uint32_t* obstacleId, const float* bmin, const float* bmax)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -3;
+	}
+	if (bmin == nullptr)
+	{
+		return -4;
+	}
+	if (bmax == nullptr)
+	{
+		return -5;
+	}
+
+	return navMeshScene->addBoxObstacle(obstacleId, bmin, bmax);
+}
+
+int32_t RecastAddBoxCenterObstacle(NavMeshScene* navMeshScene, uint32_t* obstacleId, const float* center, const float* halfExtents, const float yRadians)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -3;
+	}
+	if (center == nullptr)
+	{
+		return -4;
+	}
+	if (halfExtents == nullptr)
+	{
+		return -5;
+	}
+
+	return navMeshScene->addBoxObstacle(obstacleId, center, halfExtents, yRadians);
+}
+
+int32_t RecastRemoveObstacle(NavMeshScene* navMeshScene, const uint32_t obstacleId)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -3;
+	}
+
+	return navMeshScene->removeObstacle(obstacleId);
+}
+
+int32_t RecastUpdateObstacles(NavMeshScene* navMeshScene, bool isEveryFrame)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -3;
+	}
+	return navMeshScene->updateObstacles(isEveryFrame);
+}
