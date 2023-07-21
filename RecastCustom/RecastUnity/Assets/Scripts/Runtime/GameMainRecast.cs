@@ -1,30 +1,38 @@
 using System;
 using UnityEngine;
-using UnityEngine.AI;
 
+/// <summary>
+/// 基础recast寻路测试
+/// </summary>
 public class GameMainRecast : MonoBehaviour
 {
-	public Transform character;
+	public Transform mainCharacter;
 	public Joystick joystick;
 	public TextAsset navMeshText;
 	public float speed = 5f;
+	/// <summary>
+	/// 主角半径
+	/// </summary>
+	public const float CharcterRadius = 0.5f;
 
-	private IntPtr navMeshScene;
-	private RecastAgent recastAgent;
+	protected IntPtr navMeshScene;
+	protected RecastAgent recastAgent;
 
-	private void Awake()
+	public virtual bool isDynamicScene => false;
+
+	protected virtual void Awake()
 	{
 		var bytes = navMeshText.bytes;
-		navMeshScene = RecastDll.RecastLoad(1, bytes, bytes.Length);
+		navMeshScene = RecastDll.RecastLoad(1, bytes, bytes.Length, isDynamicScene);
 		if (navMeshScene == IntPtr.Zero)
 		{
 			Debug.LogError("Load Recast Data failed!");
 			return;
 		}
-		recastAgent = RecastAgent.Create(character, navMeshScene);
+		recastAgent = RecastAgent.Create(mainCharacter, navMeshScene);
 	}
 
-	private void OnDestroy()
+	protected virtual void OnDestroy()
 	{
 		if (navMeshScene != IntPtr.Zero)
 		{
@@ -33,7 +41,8 @@ public class GameMainRecast : MonoBehaviour
 		}
 	}
 
-	private void OnEnable()
+
+	protected virtual void OnEnable()
 	{
 		//设置到正确的起始位置
 		if (recastAgent.FindNearestPoint(recastAgent.transform.position, out var realEndPos))
@@ -45,13 +54,13 @@ public class GameMainRecast : MonoBehaviour
 		joystick.onTouchUp += OnJoystickUp;
 	}
 
-	private void OnDisable()
+	protected virtual void OnDisable()
 	{
 		joystick.onTouchMove -= OnJoystickMove;
 		joystick.onTouchUp -= OnJoystickUp;
 	}
 
-	private void OnJoystickMove(JoystickData joystickData)
+	protected virtual void OnJoystickMove(JoystickData joystickData)
 	{
 		recastAgent.ResetPath();
 
@@ -63,12 +72,12 @@ public class GameMainRecast : MonoBehaviour
 
 	}
 
-	private void OnJoystickUp()
+	protected virtual void OnJoystickUp()
 	{
 
 	}
 
-	private void Update()
+	protected virtual void Update()
 	{
 		this.recastAgent.Update();
 

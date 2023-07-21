@@ -1,22 +1,14 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class GameMainRecastCrowd : MonoBehaviour
-{
-	public Transform mainCharacter;
-	public Joystick joystick;
-	public float speed = 5f;
 
+/// <summary>
+/// 人群动态避障寻路测试
+/// </summary>
+public class GameMainRecastCrowd : GameMainRecast
+{
 	public Transform character1;
 	public Transform character2;
-
-	public TextAsset navMeshText;
-
-	private IntPtr navMeshScene;
-	private RecastAgent recastAgent;
 
 	private int agentId1;
 	private int agentId2;
@@ -26,40 +18,10 @@ public class GameMainRecastCrowd : MonoBehaviour
 	private float[] tmpPos = new float[3];
 
 
-	private void Awake()
+	protected override void OnEnable()
 	{
-		var bytes = navMeshText.bytes;
-		navMeshScene = RecastDll.RecastLoad(1, bytes, bytes.Length);
-		if (navMeshScene == IntPtr.Zero)
-		{
-			Debug.LogError("Load Recast Data failed!");
-			return;
-		}
-		recastAgent = RecastAgent.Create(mainCharacter, navMeshScene);
-
-	}
-
-	private void OnDestroy()
-	{
-		if (navMeshScene != IntPtr.Zero)
-		{
-			RecastDll.RecastClear(navMeshScene);
-			navMeshScene = IntPtr.Zero;
-		}
-	}
-
-
-	private void OnEnable()
-	{
-		//设置到正确的起始位置
-		if (recastAgent.FindNearestPoint(recastAgent.transform.position, out var realEndPos))
-		{
-			recastAgent.transform.position = realEndPos;
-		}
-
-		joystick.onTouchMove += OnJoystickMove;
-		joystick.onTouchUp += OnJoystickUp;
-
+		base.OnEnable();
+		//设置为自动更新人群位置的agent，适用于主角
 		recastAgent.SetCrowdAgent();
 
 		//添加巡逻npc
@@ -79,27 +41,6 @@ public class GameMainRecastCrowd : MonoBehaviour
 		RecastDll.RecastSetAgentMoveTarget(navMeshScene, agentId2, targetPos2);
 	}
 
-	private void OnDisable()
-	{
-		joystick.onTouchMove -= OnJoystickMove;
-		joystick.onTouchUp -= OnJoystickUp;
-	}
-
-	private void OnJoystickMove(JoystickData joystickData)
-	{
-		recastAgent.ResetPath();
-
-		var forward = GameUtil.mainCamera.transform.forward;
-		forward = Vector3.ProjectOnPlane(forward, Vector3.up);
-		recastAgent.transform.rotation = Quaternion.LookRotation(forward) * Quaternion.Euler(0, -joystickData.angle + 90, 0);
-		var offset = recastAgent.transform.forward * speed * joystickData.power * Time.deltaTime;
-		recastAgent.Move(offset);
-	}
-
-	private void OnJoystickUp()
-	{
-
-	}
 
 	private void UpdateRecastCrowd()
 	{
@@ -126,10 +67,12 @@ public class GameMainRecastCrowd : MonoBehaviour
 
 	}
 
-	private void Update()
+	protected override void Update()
 	{
 		this.recastAgent.Update();
-		UpdateRecastCrowd();
+
+		//更新人群数据
+		this.UpdateRecastCrowd();
 
 		if (Input.GetMouseButtonDown(0))
 		{

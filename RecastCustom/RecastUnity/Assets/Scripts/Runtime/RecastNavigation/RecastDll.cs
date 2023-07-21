@@ -13,7 +13,7 @@ public static class RecastDll
 	public static extern IntPtr RecastGet(int id);
 
 	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
-	public static extern IntPtr RecastLoad(int id, byte[] buffer, int n);
+	public static extern IntPtr RecastLoad(int id, byte[] buffer, int n, bool isTileCache = false);
 
 	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
 	public static extern bool RecastClearById(int id);
@@ -62,5 +62,20 @@ public static class RecastDll
 
 	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
 	public static extern void RecastUpdate(IntPtr navMeshScene, float deltaTime);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastAddObstacle(IntPtr navMeshScene, ref uint obstacleId, float[] pos, float radius, float height);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastAddBoxObstacle(IntPtr navMeshScene, ref uint obstacleId, float[] bmin, float[] bmax);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastAddBoxCenterObstacle(IntPtr navMeshScene, ref uint obstacleId, float[] center, float[] halfExtents, float yRadians);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastRemoveObstacle(IntPtr navMeshScene, uint obstacleId);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastUpdateObstacles(IntPtr navMeshScene, bool isEveryFrame = false);
 
 }

@@ -84,7 +84,11 @@ public class RecastAgent
 	{
 		Vector3 targetDirection = target - transform.position;
 		targetDirection.y = 0; // this makes the direction strictly horizontal
-		this.transform.rotation = Quaternion.LookRotation(targetDirection);
+		if (targetDirection.sqrMagnitude > 0)
+		{
+			this.transform.rotation = Quaternion.LookRotation(targetDirection);
+		}
+
 	}
 
 	protected virtual bool TryMove(Vector3 startPos, Vector3 endPos, out Vector3 realEndPos)

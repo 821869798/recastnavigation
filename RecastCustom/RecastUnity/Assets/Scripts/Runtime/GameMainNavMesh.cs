@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.AI;
 
+/// <summary>
+/// Unity自带的NavMesh测试，作为对照
+/// </summary>
 public class GameMainNavMesh : MonoBehaviour
 {
 	public NavMeshAgent character;
