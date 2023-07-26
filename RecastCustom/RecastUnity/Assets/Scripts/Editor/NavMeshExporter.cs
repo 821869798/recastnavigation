@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
@@ -43,41 +43,53 @@ public static class NavMeshExporter
 	[MenuItem("GameEditor/NavMesh/Export NavMesh", priority = 10000)]
 	private static void ExportNavMesh()
 	{
-		//临时把所有mesh改成scale x -1
-		var meshs = Object.FindObjectsOfType<MeshRenderer>();
-		Dictionary<MeshRenderer, Vector3> meshOriginScale = new Dictionary<MeshRenderer, Vector3>();
-		foreach (var m in meshs)
+		//临时把所有gameobject改成scale x -1
+		Dictionary<Transform, Vector3> meshOriginScale = new Dictionary<Transform, Vector3>();
+		Scene activeScene = SceneManager.GetActiveScene();
+		GameObject[] rootObjects = activeScene.GetRootGameObjects();
+		foreach (var obj in rootObjects)
 		{
-			var ss = m.transform.localScale;
-			meshOriginScale[m] = ss;
+			var tf = obj.transform;
+			var ss = tf.localScale;
+			meshOriginScale[tf] = ss;
 			ss.x = -ss.x;
-			m.transform.localScale = ss;
+			tf.localScale = ss;
 		}
 
-
+		NavMeshTriangulation triangulation = new NavMeshTriangulation();
+		try
+		{
 #if UNITY_2017_2_OR_NEWER
-		UnityEditor.AI.NavMeshBuilder.BuildNavMesh();
+			UnityEditor.AI.NavMeshBuilder.BuildNavMesh();
 #endif
 
-		NavMeshTriangulation triangulation = NavMesh.CalculateTriangulation();
+			triangulation = NavMesh.CalculateTriangulation();
+		}
+		catch (System.Exception e)
+		{
+			Debug.LogError("BuildNavMesh error:" + e);
+			return;
+		}
+		finally
+		{
+			//还原所有更改GameOject scale
+			foreach (var kv in meshOriginScale)
+			{
+				kv.Key.localScale = kv.Value;
+			}
+			meshOriginScale.Clear();
+		}
+
 		Vector3[] vertices = triangulation.vertices;
 		int[] indices = triangulation.indices;
 		int[] areas = triangulation.areas;
-
-		//还原scale
-		foreach (var kv in meshOriginScale)
-		{
-			kv.Key.transform.localScale = kv.Value;
-		}
-		meshOriginScale.Clear();
-
 		if ((0 == vertices.Length) || (0 == indices.Length) || (0 == areas.Length))
 		{
 			Debug.LogError("There is no NavMesh to export!");
 			return;
 		}
 
-		var curScene = EditorSceneManager.GetActiveScene().name;
+		var curScene = SceneManager.GetActiveScene().name;
 
 		string navmeshName = curScene + ".navmesh.bytes";
 		string savePath = EditorUtility.SaveFilePanel("Export NavMesh", Path.Combine(Application.dataPath, "Res"), navmeshName, "bytes");
@@ -140,16 +152,29 @@ public static class NavMeshExporter
 
 	}
 
+	[MenuItem("GameEditor/NavMesh/ExportSceneToObj-NavStatic")]
+	//[MenuItem("GameObject/ExportScene/ExportSceneToObj")]
+	public static void ExportNavStatic()
+	{
+		ExportSceneToObjNavStaic(false);
+	}
+
+	[MenuItem("GameEditor/NavMesh/ExportSceneToObj-NavStatic(AutoCut)")]
+	//[MenuItem("GameObject/ExportScene/ExportSceneToObj(AutoCut)")]
+	public static void ExportNavStaticAutoCut()
+	{
+		ExportSceneToObjNavStaic(true);
+	}
 
 	[MenuItem("GameEditor/NavMesh/ExportSceneToObj")]
-	[MenuItem("GameObject/ExportScene/ExportSceneToObj")]
+	//[MenuItem("GameObject/ExportScene/ExportSceneToObj")]
 	public static void Export()
 	{
 		ExportSceneToObj(false);
 	}
 
 	[MenuItem("GameEditor/NavMesh/ExportSceneToObj(AutoCut)")]
-	[MenuItem("GameObject/ExportScene/ExportSceneToObj(AutoCut)")]
+	//[MenuItem("GameObject/ExportScene/ExportSceneToObj(AutoCut)")]
 	public static void ExportAutoCut()
 	{
 		ExportSceneToObj(true);
@@ -196,6 +221,24 @@ public static class NavMeshExporter
 	private static int count = 0;
 	private static int counter = 0;
 	private static int progressUpdateInterval = 10000;
+
+	public static void ExportSceneToObjNavStaic(bool autoCut)
+	{
+		string path = GetSavePath(autoCut, null);
+		if (string.IsNullOrEmpty(path)) return;
+		Terrain terrain = UnityEngine.Object.FindObjectOfType<Terrain>();
+		if (terrain && (GameObjectUtility.GetStaticEditorFlags(terrain.gameObject) & StaticEditorFlags.NavigationStatic) > 0)
+		{
+
+		}
+		else
+		{
+			terrain = null;
+		}
+		MeshFilter[] mfs = UnityEngine.Object.FindObjectsOfType<MeshFilter>().Where(m => (GameObjectUtility.GetStaticEditorFlags(m.gameObject) & StaticEditorFlags.NavigationStatic) > 0).ToArray();
+		SkinnedMeshRenderer[] smrs = UnityEngine.Object.FindObjectsOfType<SkinnedMeshRenderer>().Where(m => (GameObjectUtility.GetStaticEditorFlags(m.gameObject) & StaticEditorFlags.NavigationStatic) > 0).ToArray();
+		ExportSceneToObj(path, terrain, mfs, smrs, autoCut, true);
+	}
 
 	public static void ExportSceneToObj(bool autoCut)
 	{
