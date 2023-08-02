@@ -33,6 +33,22 @@ void RecastClearAll()
 	NavMeshManager::getInstance()->clearAll();
 }
 
+int32_t RecastGetBounds(NavMeshScene* navMeshScene, float* bmin, float* bmax)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -1;
+	}
+	if (bmin == nullptr)
+	{
+		return -2;
+	}
+	if (bmax == nullptr)
+	{
+		return -3;
+	}
+	return navMeshScene->getBounds(bmin, bmax);
+}
 
 bool RecastFindRandomPoint(NavMeshScene* navMeshScene, float* pos)
 {

@@ -102,6 +102,35 @@ int32_t NavMeshScene::init(const char* buffer, int32_t n)
 	return 0;
 }
 
+int32_t NavMeshScene::getBounds(float* m_bmin, float* m_bmax)
+{
+	int maxTiles = navMesh->getMaxTiles();
+	if (maxTiles == 0)
+	{
+		return -100;
+	}
+
+	const dtNavMesh* constNavMesh = navMesh;
+	float bmin[3], bmax[3];
+	const dtMeshTile* tile = constNavMesh->getTile(0);
+	dtVcopy(bmin, tile->header->bmin);
+	dtVcopy(bmax, tile->header->bmax);
+
+	for (int i = 1; i < maxTiles; ++i)
+	{
+		const dtMeshTile* tile = constNavMesh->getTile(i);
+		if (!tile || !tile->header)
+			continue;
+
+		dtVmin(bmin, tile->header->bmin);
+		dtVmax(bmax, tile->header->bmax);
+	}
+
+	dtVcopy(m_bmin, bmin);
+	dtVcopy(m_bmax, bmax);
+	return 0;
+}
+
 int32_t NavMeshScene::pathfindFollow(float* extents, float* m_spos, float* m_epos, float* m_smoothPath)
 {
 

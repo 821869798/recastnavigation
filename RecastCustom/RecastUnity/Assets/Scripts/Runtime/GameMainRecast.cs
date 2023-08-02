@@ -29,6 +29,11 @@ public class GameMainRecast : MonoBehaviour
 			Debug.LogError("Load Recast Data failed!");
 			return;
 		}
+		if (RecastUtility.RecastTryGetBounds(navMeshScene, out var bounds))
+		{
+			Debug.Log($"Recast Bounds min:{bounds.min} max: {bounds.max}");
+		}
+
 		recastAgent = RecastAgent.Create(mainCharacter, navMeshScene);
 	}
 

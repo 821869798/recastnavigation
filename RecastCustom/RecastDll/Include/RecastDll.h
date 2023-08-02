@@ -18,6 +18,7 @@ extern "C" {
 	EXPORT_API bool RecastClearById(int32_t id);
 	EXPORT_API bool RecastClear(NavMeshScene* navMeshScene);
 	EXPORT_API void RecastClearAll();
+	EXPORT_API int32_t RecastGetBounds(NavMeshScene* navMeshScene, float* bmin, float* bmax);
 	EXPORT_API bool RecastFindRandomPoint(NavMeshScene* navMeshScene, float* pos);
 	EXPORT_API int32_t RecastFindNearestPoint(NavMeshScene* navMeshScene, float* extents, float* startPos, float* nearestPos);
 	EXPORT_API int32_t RecastFindRandomPointAroundCircle(NavMeshScene* navMeshScene, float* extents, const float* centerPos, const float maxRadius, float* pos);

@@ -25,6 +25,9 @@ public static class RecastDll
 	public static extern void RecastClearAll();
 
 	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+	public static extern int RecastGetBounds(IntPtr navMeshScene, float[] bmin, float[] bmax);
+
+	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
 	public static extern bool RecastFindRandomPoint(IntPtr navMeshScene, float[] pos);
 
 	[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]

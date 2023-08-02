@@ -21,6 +21,19 @@ int readFileToBuffer(const std::string& filename, std::vector<char>& buffer) {
 	return 0;
 }
 
+void test_PrintBounds(NavMeshScene* navMeshScene)
+{
+	float bmin[3];
+	float bmax[3];
+	auto result = RecastGetBounds(navMeshScene, bmin, bmax);
+	if (result < 0) {
+		printf("RecastGetBounds failed\n");
+		return;
+	}
+
+	printf("bound min:%f %f %f\nbound max:%f %f %f\n", bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2]);
+}
+
 
 void test_RecastFindRandomPoint(NavMeshScene* navMeshScene)
 {
@@ -49,7 +62,7 @@ void test_RecastFindNearestPoint(NavMeshScene* navMeshScene)
 	float endPos[3];
 	int result = RecastFindNearestPoint(navMeshScene, extents, startPos, endPos);
 	if (result < 0) {
-		printf("RecastFindNearestPoint failed\n");
+		printf("RecastFindNearestPoint failed:%d\n", result);
 		return;
 	}
 
@@ -76,6 +89,8 @@ void testSoleNavMesh()
 		printf("load sole navmesh recast binary failed");
 		return;
 	}
+
+	test_PrintBounds(recast);
 
 	test_RecastFindRandomPoint(recast);
 
@@ -130,6 +145,8 @@ void testTileCache()
 		printf("load tilecache recast binary failed");
 		return;
 	}
+
+	test_PrintBounds(recast);
 
 	test_RecastFindRandomPoint(recast);
 
