@@ -511,6 +511,15 @@ void NavMeshScene::update(float deltaTime)
 	}
 }
 
+int32_t NavMeshScene::GenNavMeshInfo(const char* exportJsonPath)
+{
+	if (navMesh == nullptr)
+	{
+		return 1;
+	}
+	return navmeshInfoToJson(navMesh, exportJsonPath);
+}
+
 
 NavMeshScene::NavMeshScene(int32_t id)
 {

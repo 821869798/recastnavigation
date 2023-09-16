@@ -1,7 +1,11 @@
 #pragma once
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
+#include <vector>
 #include "DetourCommon.h"
+#include "Recast.h"
+
 
 
 static const int MAX_POLYS = 256;
@@ -44,18 +48,6 @@ inline bool inRange(const float* v1, const float* v2, const float r, const float
 	const float dz = v2[2] - v1[2];
 	return (dx * dx + dz * dz) < r * r && fabsf(dy) < h;
 }
-
-/// Returns the minimum of two values.
-/// @param[in]		a	Value A
-/// @param[in]		b	Value B
-/// @return The minimum of the two values.
-template<class T> inline T rcMin(T a, T b) { return a < b ? a : b; }
-
-/// Returns the maximum of two values.
-/// @param[in]		a	Value A
-/// @param[in]		b	Value B
-/// @return The maximum of the two values.
-template<class T> inline T rcMax(T a, T b) { return a > b ? a : b; }
 
 
 inline static bool getSteerTarget(dtNavMeshQuery* navQuery, const float* startPos, const float* endPos,
@@ -218,4 +210,83 @@ inline static void calcVel(float* vel, const float* pos, const float* tgt, const
 	vel[1] = 0.0;
 	dtVnormalize(vel);
 	dtVscale(vel, vel, speed);
+}
+
+inline int32_t navmeshInfoToJson(dtNavMesh* navMesh, const char* exportJsonPath)
+{
+	if (!navMesh)
+	{
+		return 1;
+	}
+	const dtNavMesh* constNavMesh = navMesh;
+	// get tile count.
+	std::vector<std::vector<float>> vertices;
+	std::vector<std::vector<int>> triangles;
+	int tileCount = navMesh->getMaxTiles();
+	// for each tile
+	for (int i = 0; i < tileCount; ++i) {
+		const dtMeshTile* tile = constNavMesh->getTile(i);
+		if (!tile) {
+			continue;
+		}
+		if (!tile->header) {
+			continue;
+		}
+		// for each polygon in tile
+		for (int j = 0; j < tile->header->polyCount; ++j) {
+			const dtPoly* poly = &tile->polys[j];
+
+			std::vector<int> triangle;
+			// for each vertex in polygon
+			for (int k = 0; k < poly->vertCount; ++k) {
+				// get vertex position
+				float* v = &tile->verts[poly->verts[k] * 3];
+				// push vertex to vertices
+				vertices.push_back({ v[0], v[1], v[2] });
+				// push vertex index to triangle
+				int triangleIndex = static_cast<int>(vertices.size());
+				triangle.push_back(triangleIndex - 1);
+			}
+			// push triangle to triangles
+			triangles.push_back(triangle);
+		}
+	}
+
+	std::ofstream outFile(exportJsonPath);
+	if (outFile.is_open()) {
+		outFile << "{\n";
+		outFile << "\"vertices\": [\n";
+		for (size_t v = 0; v < vertices.size(); ++v) {
+			outFile << "[";
+			for (size_t i = 0; i < vertices[v].size(); ++i) {
+				outFile << vertices[v][i];
+				if (i != vertices[v].size() - 1)
+					outFile << ", ";
+			}
+			outFile << "]";
+			if (v != vertices.size() - 1)
+				outFile << ",";
+			outFile << "\n";
+		}
+		outFile << "],\n";
+		outFile << "\"triangles\": [\n";
+		for (size_t t = 0; t < triangles.size(); ++t) {
+			outFile << "[";
+			for (size_t i = 0; i < triangles[t].size(); ++i) {
+				outFile << triangles[t][i];
+				if (i != triangles[t].size() - 1)
+					outFile << ", ";
+			}
+			outFile << "]";
+			if (t != triangles.size() - 1)
+				outFile << ",";
+			outFile << "\n";
+		}
+		outFile << "]\n";
+		outFile << "}\n";
+		outFile.close();
+		return 0;
+	}
+
+	return 100;
 }

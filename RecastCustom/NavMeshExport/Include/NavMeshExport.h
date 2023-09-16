@@ -1,11 +1,5 @@
 #pragma once
 
-#if !RECASTNAVIGATION_STATIC && WIN32
-#define EXPORT_API __declspec(dllexport)
-#else
-#define EXPORT_API
-#endif
-
 #include "Recast.h"
 #include "DetourNavMesh.h"
 #include <map>
@@ -139,16 +133,3 @@ struct NavMeshBuildArgs
 
 // The core part of building NavMesh from exported unity NavMesh.
 dtNavMesh* rcBuildNavMesh(rcContext* ctx, NavMeshBuildArgs* buildArgs, const float* vertices, const int* triangles, const int* area, int maxVertexPerPolygon);
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-	// The api used for importing NavMesh exported by NavMeshExporter_Unity from unity.
-	//EXPORT_API dtNavMesh* NavMeshImporter_Unity(const char* importPath, float* boundBoxMin, float* boundBoxMax);
-
-	EXPORT_API bool NavMeshExport(NavMeshBuildArgs* buildArgs, const float* vertices, const int* triangles, const int* area, const char* exportPath);
-
-#ifdef __cplusplus
-}
-#endif

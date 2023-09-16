@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 if ( WIN32 AND NOT CYGWIN AND NOT ( CMAKE_SYSTEM_NAME STREQUAL "WindowsStore" ) )
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MT" CACHE STRING "")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /MTd" CACHE STRING "")
@@ -26,21 +28,55 @@ MARK_AS_ADVANCED(NAVMESHEXPORT_PROJECT_DIR)
 # 配置cpp文件
 file(GLOB NAVMESHEXPORT_SOURCES 
 	Source/*.cpp
+	json/*.hpp
 	../../Detour/Source/*.cpp 
 	../../DetourCrowd/Source/*.cpp 
 	../../DetourTileCache/Source/*.cpp 
 	../../Recast/Source/*.cpp
+	../../RecastDemo/Source/*.cpp
+	../../DebugUtils/Source/*.cpp
+	../../RecastDemo/Contrib/fastlz/fastlz.c
 )
 
-# 配置头文件
-include_directories(
-	Include
-	../../DebugUtils/Include
-	../../Detour/Include
-	../../DetourCrowd/Include
-	../../DetourTileCache/Include
-	../../Recast/Include
-)
+# 排除 main.cpp 文件
+list(REMOVE_ITEM NAVMESHEXPORT_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/../../RecastDemo/Source/main.cpp")
+
+if(NOT SDL2_ROOT_DIR)
+  if(WIN32)
+    set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../RecastDemo/Contrib/SDL")
+  elseif(APPLE)
+    set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../RecastDemo/Bin")
+  endif()
+endif()
+
+find_package(OpenGL REQUIRED)
+if(APPLE)
+  find_library(SDL2_LIBRARY 
+    NAMES SDL2
+    PATHS ${SDL2_ROOT_DIR}
+    REQUIRED)
+elseif(WIN32)
+  find_package(SDL2 REQUIRED)
+else()
+  find_package(SDL2 REQUIRED)
+endif()
+
+
+include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
+include_directories(SYSTEM ../../RecastDemo/Contrib/fastlz)
+include_directories(SYSTEM ../../RecastDemo/Contrib)
+include_directories(../../DebugUtils/Include)
+include_directories(../../Detour/Include)
+include_directories(../../DetourCrowd/Include)
+include_directories(../../DetourTileCache/Include)
+include_directories(../../Recast/Include)
+include_directories(../../RecastDemo/Include)
+include_directories(../../RecastDemo/Contrib/SDL/include)
+include_directories(Include)
+include_directories(json)
+if(APPLE)
+  include_directories(${SDL2_LIBRARY}/Headers)
+endif()
 
 macro(source_group_by_dir proj_dir source_files)
     if(MSVC OR APPLE)
@@ -70,8 +106,11 @@ if (APPLE)
         add_library(NavMeshExport MODULE ${NAVMESHEXPORT_SOURCES})
         set_target_properties ( NavMeshExport PROPERTIES BUNDLE TRUE )
     endif ()
-else ( )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Os -Wall")
+    target_link_libraries(NavMeshExport ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})
+else()
     add_library(NavMeshExport SHARED ${NAVMESHEXPORT_SOURCES})
+    target_link_libraries(NavMeshExport ${OPENGL_LIBRARIES} SDL2::SDL2main )
 endif ( )
 
 # 精简so文件大小

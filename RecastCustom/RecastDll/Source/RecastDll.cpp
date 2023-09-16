@@ -50,6 +50,15 @@ int32_t RecastGetBounds(NavMeshScene* navMeshScene, float* bmin, float* bmax)
 	return navMeshScene->getBounds(bmin, bmax);
 }
 
+EXPORT_API int32_t RecastGenNavMeshInfo(NavMeshScene* navMeshScene, const char* exportJsonPath)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -1;
+	}
+	return navMeshScene->GenNavMeshInfo(exportJsonPath);
+}
+
 bool RecastFindRandomPoint(NavMeshScene* navMeshScene, float* pos)
 {
 	if (navMeshScene == nullptr || pos == nullptr)

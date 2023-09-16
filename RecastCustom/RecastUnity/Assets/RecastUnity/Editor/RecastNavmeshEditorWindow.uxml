@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement style="flex-grow: 1;">
+        <uie:ObjectField label="NavMeshExportConfig" type="RecastUnity.ExportEditor.RecastNavMeshConfig,RecastUnity.ExportEditor" name="objNavMeshExportConfig" />
+    </ui:VisualElement>
+    <ui:VisualElement style="flex-direction: row-reverse; min-height: 30px; padding-left: 5px; padding-right: 5px; padding-top: 0; padding-bottom: 0;">
+        <ui:Button text="Gen NavMesh" display-tooltip-when-elided="true" name="btnGenNavMesh" />
+        <ui:Button text="Preview NavMesh" display-tooltip-when-elided="true" name="btnPreviewNavMesh" />
+    </ui:VisualElement>
+</ui:UXML>

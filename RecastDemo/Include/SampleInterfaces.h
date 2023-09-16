@@ -19,10 +19,13 @@
 #ifndef SAMPLEINTERFACES_H
 #define SAMPLEINTERFACES_H
 
+#include <cstddef>
+#include <stdio.h>
 #include "DebugDraw.h"
 #include "Recast.h"
 #include "RecastDump.h"
 #include "PerfTimer.h"
+
 
 // These are example implementations of various interfaces used in Recast and Detour.
 

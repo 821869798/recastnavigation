@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88f3ab8d32017814f9d6fb5e48fbe0f5, type: 3}
+  m_Name: RecastNavMeshConfig
+  m_EditorClassIdentifier: 
+  navMeshType: 0
+  sceneObjExportType: 0
+  buildArgs:
+    cellSize: 0.3
+    cellHeight: 0.2
+    agentHeight: 2
+    agentRadius: 0.6
+    agentMaxClimb: 0.9
+    agentMaxSlope: 45
+    regionMinSize: 8
+    regionMergeSize: 20
+    edgeMaxLen: 12
+    edgeMaxError: 1.3
+    vertsPerPoly: 6
+    detailSampleDist: 6
+    detailSampleMaxError: 1
+    tileSize: 48
+    partitionType: 0
+  exportSceneModifies: []

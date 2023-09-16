@@ -1,0 +1,18 @@
+{
+    "name": "RecastUnity.ExportEditor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:7843548c1fb4be94fa96535d0dfe0200"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

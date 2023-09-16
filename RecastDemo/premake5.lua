@@ -283,15 +283,20 @@ project "NavMeshExport"
 	cppdialect "C++14" -- Catch requires newer C++ features
 	includedirs { 
 		"../RecastCustom/NavMeshExport/Include",
+		"../RecastCustom/NavMeshExport/json",
+		"../RecastDemo/Include",
+		"../RecastDemo/Contrib",
+		"../RecastDemo/Contrib/fastlz",
 		"../DebugUtils/Include",
 		"../Detour/Include",
 		"../DetourCrowd/Include",
 		"../DetourTileCache/Include",
-		"../Recast/Include"
+		"../Recast/Include",
 	}
 	files {
 		"../RecastCustom/NavMeshExport/Include/*.h",
 		"../RecastCustom/NavMeshExport/Source/*.cpp",
+		"../RecastCustom/NavMeshExport/json/*.hpp",
 		"../Detour/Include/*.h", 
 		"../Detour/Source/*.cpp",
 		"../DetourCrowd/Include/*.h",
@@ -300,7 +305,15 @@ project "NavMeshExport"
 		"../DetourTileCache/Source/*.cpp",
 		"../Recast/Include/*.h",
 		"../Recast/Source/*.cpp",
+		"../DebugUtils/Include/*.h",
+		"../DebugUtils/Source/*.cpp",
+		"../RecastDemo/Include/*.h",
+		"../RecastDemo/Source/*.cpp",
+		"../RecastDemo/Contrib/fastlz/*.h",
+		"../RecastDemo/Contrib/fastlz/*.c"
 	}
+	
+	removefiles("../RecastDemo/Source/main.cpp")
 	
 	-- linux library cflags and libs
 	filter {"system:linux", "toolset:gcc"}
@@ -309,6 +322,136 @@ project "NavMeshExport"
 			"-Wno-error=maybe-uninitialized"
 		}
 		
+			-- linux library cflags and libs
+	filter "system:linux"
+		buildoptions { 
+			"`pkg-config --cflags sdl2`",
+			"`pkg-config --cflags gl`",
+			"`pkg-config --cflags glu`",
+			"-Wno-ignored-qualifiers",
+		}
+		linkoptions { 
+			"`pkg-config --libs sdl2`",
+			"`pkg-config --libs gl`",
+			"`pkg-config --libs glu`" 
+		}
+
+	filter { "system:linux", "toolset:gcc", "files:*.c" }
+		buildoptions {
+			"-Wno-class-memaccess"
+		}
+
+	-- windows library cflags and libs
+	filter "system:windows"
+		includedirs { "../RecastDemo/Contrib/SDL/include" }
+		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
+		links { 
+			"glu32",
+			"opengl32",
+			"SDL2",
+			"SDL2main",
+		}
+		postbuildcommands {
+			-- Copy the SDL2 dll to the Bin folder.
+			'{COPY} "%{path.getabsolute("Contrib/SDL/lib/" .. cfg.architecture:gsub("x86_64", "x64") .. "/SDL2.dll")}" "%{cfg.targetdir}"'
+		}
+
+	-- mac includes and libs
+	filter "system:macosx"
+		kind "ConsoleApp" -- xcode4 failes to run the project if using WindowedApp
+		includedirs { "Bin/SDL2.framework/Headers" }
+		links { 
+			"OpenGL.framework", 
+			"SDL2.framework",
+			"Cocoa.framework",
+		}
+		
+		
+project "NavMeshExportTester"
+	language "C++"
+	kind "ConsoleApp"
+	cppdialect "C++14" -- Catch requires newer C++ features
+	-- distribute executable in RecastDemo/Bin directory
+	targetdir "Bin"
+	
+	includedirs { 
+		"../RecastCustom/NavMeshExportTester/Include",
+		"../RecastCustom/NavMeshExport/Include",
+		"../RecastCustom/NavMeshExport/json",
+		"../RecastDemo/Include",
+		"../RecastDemo/Contrib",
+		"../RecastDemo/Contrib/fastlz",
+		"../DebugUtils/Include",
+		"../Detour/Include",
+		"../DetourCrowd/Include",
+		"../DetourTileCache/Include",
+		"../Recast/Include",
+	}
+	files {
+		"../RecastCustom/NavMeshExportTester/Include/*.h",
+		"../RecastCustom/NavMeshExportTester/Source/*.cpp",
+		"../RecastCustom/NavMeshExport/Include/*.h",
+		"../RecastCustom/NavMeshExport/Source/*.cpp",
+		"../RecastCustom/NavMeshExport/json/*.hpp",
+		"../RecastDemo/Contrib/fastlz/*.h",
+		"../RecastDemo/Contrib/fastlz/*.c",
+		"../RecastDemo/Include/*.h",
+		"../RecastDemo/Source/*.cpp",
+	}
+	removefiles("../RecastDemo/Source/main.cpp")
+
+	-- project dependencies
+	links { 
+		"DebugUtils",
+		"Detour",
+		"DetourCrowd",
+		"DetourTileCache",
+		"Recast",
+	}
+	
+	-- linux library cflags and libs
+	filter "system:linux"
+		buildoptions { 
+			"`pkg-config --cflags sdl2`",
+			"`pkg-config --cflags gl`",
+			"`pkg-config --cflags glu`",
+			"-Wno-ignored-qualifiers",
+		}
+		linkoptions { 
+			"`pkg-config --libs sdl2`",
+			"`pkg-config --libs gl`",
+			"`pkg-config --libs glu`" 
+		}
+
+	filter { "system:linux", "toolset:gcc", "files:*.c" }
+		buildoptions {
+			"-Wno-class-memaccess"
+		}
+
+	-- windows library cflags and libs
+	filter "system:windows"
+		includedirs { "../RecastDemo/Contrib/SDL/include" }
+		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
+		links { 
+			"glu32",
+			"opengl32",
+			"SDL2",
+			"SDL2main",
+		}
+		postbuildcommands {
+			-- Copy the SDL2 dll to the Bin folder.
+			'{COPY} "%{path.getabsolute("Contrib/SDL/lib/" .. cfg.architecture:gsub("x86_64", "x64") .. "/SDL2.dll")}" "%{cfg.targetdir}"'
+		}
+
+	-- mac includes and libs
+	filter "system:macosx"
+		kind "ConsoleApp" -- xcode4 failes to run the project if using WindowedApp
+		includedirs { "Bin/SDL2.framework/Headers" }
+		links { 
+			"OpenGL.framework", 
+			"SDL2.framework",
+			"Cocoa.framework",
+		}
 
 project "RecastDll"
 	language "C++"

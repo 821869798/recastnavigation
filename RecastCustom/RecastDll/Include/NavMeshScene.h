@@ -78,4 +78,6 @@ public:
 	inline virtual int32_t addBoxObstacle(dtObstacleRef* /*obstacleId*/, const float* /*center*/, const float* /*halfExtents*/, const float /*yRadians*/) { return -100; };
 	inline virtual int32_t removeObstacle(const dtObstacleRef /*ref*/) { return -100; };
 	inline virtual int32_t updateObstacles(bool /*isEveryFrame*/) { return -100; }
+
+	virtual int32_t GenNavMeshInfo(const char* exportJsonPath);
 };

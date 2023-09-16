@@ -13,10 +13,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Build
+      - name: Download & install SDL
         run: |
-          cd RecastCustom/NavMeshExport
-          ./make_osx.sh
+          curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
+          hdiutil attach SDL2.dmg
+          cp -r /Volumes/SDL2/SDL2.framework ${{github.workspace}}/RecastDemo/Bin/
+          hdiutil detach /Volumes/SDL2
+          rm SDL2.dmg
+      - name: Build
+        working-directory: RecastCustom/NavMeshExport
+        run: ./make_osx.sh 
       - name: UploadNavMeshExport
         uses: actions/upload-artifact@v3
         with:
@@ -26,13 +32,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install 32-bit support
-        run: sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib
+      - name: Install lib
+        run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-dev libsdl2-dev
       - name: Build
-        run: |
-          cd RecastCustom/NavMeshExport
-          ./make_linux32.sh
-          ./make_linux64.sh
+        working-directory: RecastCustom/NavMeshExport
+        run: ./make_linux64.sh
+      - name: UploadNavMeshExport
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./RecastCustom/NavMeshExport/Plugins/**/*
+          name: plugin_NavMeshExport
+  linux_navmesh32:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install 32-bit support and other lib
+        run: sudo dpkg --add-architecture i386 && sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib libgl1-mesa-dev:i386 libsdl2-dev:i386
+      - name: Build
+        working-directory: RecastCustom/NavMeshExport
+        run: ./make_linux32.sh
       - name: UploadNavMeshExport
         uses: actions/upload-artifact@v3
         with:
@@ -46,6 +64,15 @@ jobs:
       
       - name: Insatll MSVC
         uses: microsoft/setup-msbuild@v1.1
+
+      - name: Download and Install SDL
+        working-directory: RecastDemo/Contrib
+        shell: pwsh
+        run: |
+          (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
+          tar -xf SDL.zip
+          ren SDL2-2.24.2 SDL
+          del SDL.zip
       
       - name: Build
         run: |
@@ -69,9 +96,8 @@ jobs:
           unzip -q NDK
           ANDROID_NDK_HOME=$(pwd)/android-ndk-r15c
       - name: Build
-        run: |
-          cd RecastCustom/RecastDll
-          ./make_android.sh
+        working-directory: RecastCustom/RecastDll
+        run: ./make_android.sh
       - name: UploadRecastDll
         uses: actions/upload-artifact@v3
         with:
@@ -83,9 +109,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: |
-          cd RecastCustom/RecastDll
-          ./make_ios.sh
+        working-directory: RecastCustom/RecastDll
+        run: ./make_ios.sh
       - name: UploadRecastDll
         uses: actions/upload-artifact@v3
         with:
@@ -97,9 +122,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: |
-          cd RecastCustom/RecastDll
-          ./make_osx.sh
+        working-directory: RecastCustom/RecastDll
+        run: ./make_osx.sh
       - name: UploadRecastDll
         uses: actions/upload-artifact@v3
         with:
