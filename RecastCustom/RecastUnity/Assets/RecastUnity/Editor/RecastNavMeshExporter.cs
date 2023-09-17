@@ -107,13 +107,15 @@ namespace RecastUnity.ExportEditor
 						break;
 				}
 
+				foreach (var kv in originActive)
+				{
+					kv.Key.SetActive(kv.Value);
+				}
+				originActive.Clear();
+
 				if (!File.Exists(tempObjPath))
 				{
 					Debug.LogError("generator obj mesh failed!");
-					foreach (var kv in originActive)
-					{
-						kv.Key.SetActive(kv.Value);
-					}
 					return false;
 				}
 
