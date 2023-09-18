@@ -1,4 +1,5 @@
 
+using Codice.Client.BaseCommands;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -27,8 +28,6 @@ namespace RecastUnity
 				return _instance;
 			}
 		}
-
-		public static bool HasInstance => _instance != null;
 
 		private Mesh navMesh;
 		private List<Mesh> navMeshLine = new List<Mesh>();
@@ -215,18 +214,21 @@ namespace RecastUnity
 			}
 		}
 
-		public void DestroyDebug()
+		public static void DestroyDebugInfo()
 		{
-			_instance = null;
+			if (_instance == null)
+			{
+				return;
+			}
 			if (Application.isPlaying)
 			{
-				Object.Destroy(this.gameObject);
+				Object.Destroy(_instance.gameObject);
 			}
 			else
 			{
-				Object.DestroyImmediate(this.gameObject);
+				Object.DestroyImmediate(_instance.gameObject);
 			}
-
+			_instance = null;
 		}
 
 		private void OnDestroy()

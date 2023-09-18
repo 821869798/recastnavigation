@@ -23,7 +23,7 @@ namespace RecastUnity.ExportEditor
 			VisualElement root = rootVisualElement;
 
 			// Import UXML
-			var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/RecastUnity/Editor/RecastNavmeshEditorWindow.uxml");
+			var visualTree = RecastEditorHelper.LoadWindowUXML<RecastNavmeshEditorWindow>();
 			VisualElement labelFromUXML = visualTree.Instantiate();
 			root.Add(labelFromUXML);
 
@@ -94,10 +94,7 @@ namespace RecastUnity.ExportEditor
 
 		private void OnDisable()
 		{
-			if (RecastNavMeshDebugInfo.HasInstance)
-			{
-				RecastNavMeshDebugInfo.Instance.DestroyDebug();
-			}
+			RecastNavMeshDebugInfo.DestroyDebugInfo();
 		}
 
 		private static string GetNavMeshSavePath()
