@@ -168,7 +168,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    needs: [windows,osx,linux,ios,android,windows_navmesh,osx_navmesh,linux_navmesh]
+    needs: [windows,osx,linux,ios,android,windows_navmesh,osx_navmesh,linux_navmesh,linux_navmesh32]
     steps:
       - uses: actions/download-artifact@v3
         with:

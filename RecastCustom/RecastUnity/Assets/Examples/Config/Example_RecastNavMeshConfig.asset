@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 88f3ab8d32017814f9d6fb5e48fbe0f5, type: 3}
-  m_Name: RecastNavMeshConfig
+  m_Name: Example_RecastNavMeshConfig
   m_EditorClassIdentifier: 
   navMeshType: 0
   sceneObjExportType: 0

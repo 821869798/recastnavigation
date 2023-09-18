@@ -1,0 +1,14 @@
+{
+	"name": "com.unifan.recastunity",
+	"version": "0.4.1",
+	"unity": "2018.4",
+	"displayName": "RecastUnity",
+	"description": "RecastNavigation for Unity3D",
+	"keywords": [
+		"navigation",
+		"navmesh"
+	],
+	"dependencies": {
+		"com.unity.nuget.newtonsoft-json": "3.0.2"
+	}
+}
