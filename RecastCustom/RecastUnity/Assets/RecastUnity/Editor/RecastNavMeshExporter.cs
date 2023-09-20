@@ -66,13 +66,50 @@ namespace RecastUnity.ExportEditor
 		{
 			var originActive = new Dictionary<GameObject, bool>();
 
+			// 根据配置修改GameObject的active
+			var sceneRootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
+			var rootObjectMapping = new Dictionary<string, GameObject>();
+			foreach (var go in sceneRootObjects)
+			{
+				rootObjectMapping.TryAdd(go.name, go);
+			}
 			foreach (var m in recastNavMeshConfig.exportSceneModifies)
 			{
-				var go = GameObject.Find(m.gameObjectPath);
-				if (go == null)
+				var rootPath = GetGameObjectRootPath(m.gameObjectPath);
+				GameObject rootObject = null;
+				if (rootPath.StartsWith("/"))
+				{
+					if (!rootObjectMapping.TryGetValue(rootPath.Substring(1), out rootObject))
+					{
+						continue;
+					}
+				}
+				else
+				{
+					rootObject = GameObject.Find(rootPath);
+				}
+
+				if (rootObject == null)
 				{
 					continue;
 				}
+				if (rootPath == m.gameObjectPath)
+				{
+					// root就是需要找的GameObject
+					originActive.TryAdd(rootObject, rootObject.activeSelf);
+					rootObject.SetActive(m.exportActive);
+					continue;
+				}
+
+				// 长度+1，是因为有个"/"
+				var childPath = m.gameObjectPath.Substring(rootPath.Length + 1);
+
+				var childTransform = rootObject.transform.Find(childPath);
+				if (childTransform == null)
+				{
+					continue;
+				}
+				var go = childTransform.gameObject;
 				originActive.TryAdd(go, go.activeSelf);
 				go.SetActive(m.exportActive);
 			}
@@ -104,6 +141,7 @@ namespace RecastUnity.ExportEditor
 						break;
 				}
 
+				// 还原所有更改GameOject active
 				foreach (var kv in originActive)
 				{
 					kv.Key.SetActive(kv.Value);
@@ -193,6 +231,34 @@ namespace RecastUnity.ExportEditor
 			}
 			meshInfo = null;
 			return false;
+		}
+
+		/// <summary>
+		/// 返回GameObject的Root Path
+		/// </summary>
+		/// <param name="fullPath"></param>
+		/// <returns></returns>
+		public static string GetGameObjectRootPath(string fullPath)
+		{
+			if (string.IsNullOrEmpty(fullPath))
+			{
+				return fullPath;
+			}
+			if (fullPath[0] == '/')
+			{
+				int secondSlashIndex = fullPath.IndexOf('/', 1); // 查找第二个斜杠
+				if (secondSlashIndex >= 0)
+				{
+					return fullPath.Substring(0, secondSlashIndex); // 返回第一个斜杠到第二个斜杠之间的部分
+				}
+				return fullPath;
+			}
+			int firstSlashIndex = fullPath.IndexOf('/'); // 查找第一个斜杠
+			if (firstSlashIndex >= 0)
+			{
+				return fullPath.Substring(0, firstSlashIndex); // 返回第一个斜杠之前的部分
+			}
+			return fullPath;
 		}
 
 		#region Obsolete 废弃

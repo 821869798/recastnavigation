@@ -1,6 +1,6 @@
 {
 	"name": "com.unifan.recastunity",
-	"version": "0.4.1",
+	"version": "0.4.2",
 	"unity": "2018.4",
 	"displayName": "RecastUnity",
 	"description": "RecastNavigation for Unity3D",
