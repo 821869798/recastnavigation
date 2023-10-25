@@ -274,6 +274,15 @@ int32_t RecastSetAgentMoveTarget(NavMeshScene* navMeshScene, int32_t agentId, co
 	return navMeshScene->setAgentMoveTarget(agentId, pos, adjust);
 }
 
+EXPORT_API int32_t RecastSetAgentSpeed(NavMeshScene* navMeshScene, int32_t agentId, float maxSpeed, float maxAcceleration)
+{
+	if (navMeshScene == nullptr)
+	{
+		return -2;
+	}
+	return navMeshScene->setAgentSpeed(agentId, maxSpeed, maxAcceleration);
+}
+
 void RecastUpdate(NavMeshScene* navMeshScene, float deltaTime)
 {
 	if (navMeshScene == nullptr)

@@ -6,7 +6,7 @@ namespace RecastUnity
 	public static class RecastDll
 	{
 #if UNITY_IOS && !UNITY_EDITOR
-    const string RecastDLL = "__Internal";
+		const string RecastDLL = "__Internal";
 #else
 		const string RecastDLL = "RecastDll";
 #endif
@@ -67,6 +67,9 @@ namespace RecastUnity
 
 		[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
 		public static extern int RecastSetAgentMoveTarget(IntPtr navMeshScene, int agentId, float[] pos, bool adjust = false);
+
+		[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int RecastSetAgentSpeed(IntPtr navMeshScene, int agentId, float maxSpeed, float maxAcceleration);
 
 		[DllImport(RecastDLL, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void RecastUpdate(IntPtr navMeshScene, float deltaTime);

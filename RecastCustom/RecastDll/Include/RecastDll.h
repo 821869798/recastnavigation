@@ -32,6 +32,7 @@ extern "C" {
 	EXPORT_API int32_t RecastGetAgentPosWithState(NavMeshScene* navMeshScene, int32_t agentId, float* pos, int32_t* targetState);
 	EXPORT_API int32_t RecastSetAgentPos(NavMeshScene* navMeshScene, int32_t agentId, const float* pos);
 	EXPORT_API int32_t RecastSetAgentMoveTarget(NavMeshScene* navMeshScene, int32_t agentId, const float* pos, bool adjust);
+	EXPORT_API int32_t RecastSetAgentSpeed(NavMeshScene* navMeshScene, int32_t agentId, float maxSpeed, float maxAcceleration);
 	EXPORT_API void RecastUpdate(NavMeshScene* navMeshScene, float deltaTime);
 	EXPORT_API int32_t RecastAddObstacle(NavMeshScene* navMeshScene, uint32_t* obstacleId, const float* pos, const float radius, const float height);
 	EXPORT_API int32_t RecastAddBoxObstacle(NavMeshScene* navMeshScene, uint32_t* obstacleId, const float* bmin, const float* bmax);

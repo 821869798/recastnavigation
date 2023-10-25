@@ -71,6 +71,8 @@ public:
 
 	int32_t setAgentMoveTarget(int32_t agentId, const float* pos, bool adjust);
 
+	int32_t setAgentSpeed(int32_t agentId, float maxSpeed, float maxAcceleration);
+
 	void update(float deltaTime);
 
 	inline virtual int32_t addObstacle(dtObstacleRef* /*obstacleId*/, const float* /*pos*/, const float /*radius*/, const float /*height*/) { return -100; }

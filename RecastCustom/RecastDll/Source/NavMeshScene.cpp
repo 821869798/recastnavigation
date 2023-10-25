@@ -503,6 +503,20 @@ int32_t NavMeshScene::setAgentMoveTarget(int32_t agentId, const float* pos, bool
 	return 0;
 }
 
+int32_t NavMeshScene::setAgentSpeed(int32_t agentId, float maxSpeed, float maxAcceleration)
+{
+	dtCrowdAgent* agent = crowd->getEditableAgent(agentId);
+
+	if (!(agent && agent->active))
+	{
+		return -1;
+	}
+	agent->params.maxSpeed = maxSpeed;
+	agent->params.maxAcceleration = maxAcceleration;
+
+	return 0;
+}
+
 void NavMeshScene::update(float deltaTime)
 {
 	if (crowd)
