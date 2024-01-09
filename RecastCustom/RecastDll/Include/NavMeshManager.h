@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include "NavMeshScene.h"
 #include "DynNavMeshScene.h"
+#include <mutex>
 
 class NavMeshManager
 {
@@ -20,5 +21,7 @@ private:
 	NavMeshManager& operator=(const NavMeshManager&) = delete;
 
 	std::unordered_map<int32_t, NavMeshScene*> navMeshScenes;
+
+	std::mutex lockScenes;
 
 };

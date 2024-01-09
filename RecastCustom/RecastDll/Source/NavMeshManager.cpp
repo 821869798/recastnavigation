@@ -13,6 +13,8 @@ NavMeshManager* NavMeshManager::getInstance()
 
 NavMeshScene* NavMeshManager::newScene(int32_t id, const char* buffer, int32_t n, bool dynamic)
 {
+	std::unique_lock<std::mutex> lock(this->lockScenes);
+
 	const auto it = navMeshScenes.find(id);
 	if (it != navMeshScenes.end()) {
 		delete it->second;
@@ -43,6 +45,7 @@ NavMeshScene* NavMeshManager::newScene(int32_t id, const char* buffer, int32_t n
 
 NavMeshScene* NavMeshManager::getScene(int32_t id)
 {
+	std::unique_lock<std::mutex> lock(this->lockScenes);
 	const auto it = navMeshScenes.find(id);
 	if (it != navMeshScenes.end())
 	{
@@ -53,6 +56,7 @@ NavMeshScene* NavMeshManager::getScene(int32_t id)
 
 bool NavMeshManager::clearScene(int32_t id)
 {
+	std::unique_lock<std::mutex> lock(this->lockScenes);
 	const auto it = navMeshScenes.find(id);
 	if (it != navMeshScenes.end())
 	{
@@ -66,6 +70,7 @@ bool NavMeshManager::clearScene(int32_t id)
 
 void NavMeshManager::clearAll()
 {
+	std::unique_lock<std::mutex> lock(this->lockScenes);
 	for (auto kv : navMeshScenes)
 	{
 		delete kv.second;

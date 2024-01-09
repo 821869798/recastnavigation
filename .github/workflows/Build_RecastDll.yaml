@@ -57,7 +57,7 @@ jobs:
           path: ./RecastCustom/NavMeshExport/Plugins/**/*
           name: plugin_NavMeshExport
   windows_navmesh:
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -146,7 +146,7 @@ jobs:
           path: ./RecastCustom/RecastDll/Plugins/**/*
           name: plugin_recastdll   
   windows:
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v3
